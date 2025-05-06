@@ -1,14 +1,16 @@
 {
-  "name": "tsr-web",
+  "name": "order-desktop",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3000",
-    "start": "vite --port 3000",
+    "dev": "vite --port 5173",
+    "start": "vite --port 5173",
     "build": "vite build && tsc",
     "serve": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "app-dev": "tauri dev",
+    "app-build": "tauri build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",
@@ -25,6 +27,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.5.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
     "@types/react": "^19.0.8",

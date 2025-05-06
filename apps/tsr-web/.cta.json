@@ -1,6 +1,6 @@
 {
   "framework": "react",
-  "projectName": "tsr-web",
+  "projectName": "order-web",
   "typescript": true,
   "tailwind": true,
   "packageManager": "yarn",
