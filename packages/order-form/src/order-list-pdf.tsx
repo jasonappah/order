@@ -1,6 +1,7 @@
 import { Document, Page, Text, View, StyleSheet, Link } from '@react-pdf/renderer';
 import type {  OrderLineItem } from './types';
 import { formatDate, formatCentsAsDollarString, calculateTotalCents, calculateOrderLineItemTotal } from './utilities';
+import { Fragment } from 'react/jsx-runtime';
 
 const styles = StyleSheet.create({
   page: {
@@ -27,8 +28,7 @@ const styles = StyleSheet.create({
     width: 'auto',
     borderStyle: 'solid',
     borderWidth: 1,
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
+    // borderBottomWidth: 0,
   },
   tableRow: {
     flexDirection: 'row',
@@ -36,9 +36,6 @@ const styles = StyleSheet.create({
   tableCol: {
     width: '20%',
     borderStyle: 'solid',
-    borderWidth: 1,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
     padding: 5,
   },
   tableHeader: {
@@ -58,7 +55,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   link: {
-    fontSize:6
+    fontSize: 8
   },
 });
 
@@ -88,7 +85,6 @@ export const OrderListPDF = ({ projectName, businessJustification, requestDate, 
           <View style={styles.table}>
             <View style={[styles.tableRow, styles.tableHeader]}>
               <Text style={[styles.tableCol, styles.tableCell]}>Name</Text>
-              <Text style={[styles.tableCol, styles.tableCell]}>URL</Text>
               <Text style={[styles.tableCol, styles.tableCell]}>$/Unit</Text>
               <Text style={[styles.tableCol, styles.tableCell]}>Qty</Text>
               <Text style={[styles.tableCol, styles.tableCell]}>S&H</Text>
@@ -96,16 +92,22 @@ export const OrderListPDF = ({ projectName, businessJustification, requestDate, 
             </View>
             
             {items.map((item) => (
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCol, styles.tableCell]}>{item.name}</Text>
-                <Text style={[styles.tableCol, styles.link]}><Link href={item.url}>{item.url}</Link></Text>
-                <Text style={[styles.tableCol, styles.tableCell]}>{formatCentsAsDollarString(item.pricePerUnitCents)}</Text>
-                <Text style={[styles.tableCol, styles.tableCell]}>{item.quantity}</Text>
-                <Text style={[styles.tableCol, styles.tableCell]}>{formatCentsAsDollarString(item.shippingAndHandlingCents)}</Text>
-                <Text style={[styles.tableCol, styles.tableCell]}>
-                  {formatCentsAsDollarString(calculateOrderLineItemTotal(item))}
-                </Text>
-              </View>
+              <Fragment key={item.name}>
+                <View style={styles.tableRow}>
+                  <Text style={[styles.tableCol, styles.tableCell]}>{item.name}</Text>
+                  <Text style={[styles.tableCol, styles.tableCell]}>{formatCentsAsDollarString(item.pricePerUnitCents)}</Text>
+                  <Text style={[styles.tableCol, styles.tableCell]}>{item.quantity}</Text>
+                  <Text style={[styles.tableCol, styles.tableCell]}>{formatCentsAsDollarString(item.shippingAndHandlingCents)}</Text>
+                  <Text style={[styles.tableCol, styles.tableCell]}>
+                    {formatCentsAsDollarString(calculateOrderLineItemTotal(item))}
+                  </Text>
+                </View>
+                <View style={{ marginBottom: 8, marginLeft: 4, marginRight: 4 }}>
+                  <Text style={styles.link}>
+                    <Link src={item.url}>{item.url}</Link>
+                  </Text>
+                </View>
+              </Fragment>
             ))}
           </View>
           
@@ -117,6 +119,3 @@ export const OrderListPDF = ({ projectName, businessJustification, requestDate, 
     </Document>
   );
 };
-
-
-
