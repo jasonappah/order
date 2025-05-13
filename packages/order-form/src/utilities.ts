@@ -2,7 +2,7 @@ import type { OrderLineItem } from "./types";
 
 export const formatDate = (date: Date) =>
 	new Date(date).toLocaleDateString("en-US");
-export const formatCentsAsDollarString = (cents: number) => `$${cents / 100}`;
+export const formatCentsAsDollarString = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
 export const calculateTotalCents = (items: OrderLineItem[]) =>
 	items.reduce((sum, item) => {
