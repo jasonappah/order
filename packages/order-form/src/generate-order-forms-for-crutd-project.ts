@@ -22,7 +22,7 @@ const cometProjects = {
 	Plant: "Plant Combat Robots",
 	Sumo: "SumoBots",
 	VexU: "VEX U",
-	ChessBot: "ChessBots",
+	ChessBots: "ChessBots",
 	SRP: "Solis Rover Project",
 } as const;
 

@@ -5,5 +5,6 @@ export type OrderLineItem = {
     url: string
     pricePerUnitCents: number
     shippingAndHandlingCents: number
+    notes?: string
 }
 

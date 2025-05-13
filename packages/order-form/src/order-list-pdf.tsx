@@ -106,6 +106,9 @@ export const OrderListPDF = ({ projectName, businessJustification, requestDate, 
                   <Text style={styles.link}>
                     <Link src={item.url}>{item.url}</Link>
                   </Text>
+                  <Text style={styles.link}>
+                    {item.notes}
+                  </Text>
                 </View>
               </Fragment>
             ))}

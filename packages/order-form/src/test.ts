@@ -29,6 +29,15 @@ import { generatePdfName } from "./utilities";
                 url: 'https://www.amazon.com/dp/B0BQJYJYJY',
                 pricePerUnitCents: 1000,
                 shippingAndHandlingCents: 0
+            },
+            {
+                name: "12v Boost Converter",
+                notes: "When ordering, please select the color option '12V(no Pin)'. Thanks!",
+                vendor: "AliExpress",
+                quantity: 40,
+                url: "https://www.aliexpress.us/item/2251832713406135.html",
+                pricePerUnitCents: 308,
+                shippingAndHandlingCents: 0
             }
         ],
         project,
