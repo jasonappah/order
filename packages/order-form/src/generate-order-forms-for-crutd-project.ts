@@ -37,31 +37,27 @@ export async function generateOrderFormsForCRUTDProject(
 	}
 
 	const projectName = cometProjects[data.project];
-	const totalQuoteCostCents = calculateTotalCents(data.items);
 	const requestDate = new Date();
-
-	const purchaseFormPDF = (
-		await generatePurchaseFormPDF({
-			orgName: "Comet Robotics",
-			contactName: data.contactName,
-			contactEmail: data.contactEmail,
-			contactPhone: data.contactPhone,
-			businessJustification,
-			studentSignatureDate: requestDate,
-			totalQuoteCostCents,
-		})
-	);
 
 	const itemsGroupedByVendor = groupItemsByVendor(data.items);
 	const orderListPromises = Object.entries(itemsGroupedByVendor).map(
 		([vendor, items]) =>
 			async () => ({
-				pdf: await generateOrderListPDF({
+				orderListPdf: await generateOrderListPDF({
 					requestDate,
 					items,
 					projectName,
 					businessJustification,
 					vendor,
+				}),
+				purchaseFormPdf: await generatePurchaseFormPDF({
+					orgName: "Comet Robotics",
+					contactName: data.contactName,
+					contactEmail: data.contactEmail,
+					contactPhone: data.contactPhone,
+					businessJustification,
+					studentSignatureDate: requestDate,
+					totalQuoteCostCents: calculateTotalCents(items),
 				}),
 				vendor,
 				projectName,
@@ -72,8 +68,8 @@ export async function generateOrderFormsForCRUTDProject(
 
 	const mergedOrderForms: {pdf: Uint8Array, vendor: string, projectName: string, requestDate: Date}[] = [];
 	for (const orderList of orderLists) {
-		const orderListPdfDoc = await PDFDocument.load(orderList.pdf);
-		const merged = await mergePDFs([await PDFDocument.load(purchaseFormPDF), orderListPdfDoc]);
+		const orderListPdfDoc = await PDFDocument.load(orderList.orderListPdf);
+		const merged = await mergePDFs([await PDFDocument.load(orderList.purchaseFormPdf), orderListPdfDoc]);
 		mergedOrderForms.push({...orderList, pdf: await merged.save()});
 	}
 
