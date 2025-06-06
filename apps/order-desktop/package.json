@@ -13,6 +13,9 @@
     "app-build": "tauri build"
   },
   "dependencies": {
+    "@mantine/core": "^8.0.2",
+    "@mantine/form": "^8.0.2",
+    "@mantine/hooks": "^8.0.2",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-router": "^1.114.3",
     "@tanstack/react-router-devtools": "^1.114.3",
@@ -34,6 +37,9 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
     "jsdom": "^26.0.0",
+    "postcss": "^8.5.4",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
     "typescript": "^5.7.2",
     "vite": "^6.1.0",
     "vitest": "^3.0.5",
