@@ -1,39 +1,34 @@
 import { createFileRoute } from '@tanstack/react-router'
-import logo from '../logo.svg'
+import { Container, Title, Stack } from '@mantine/core'
+import { OrderClipboardPaste } from '../components/OrderClipboardPaste'
 
 export const Route = createFileRoute('/')({
   component: App,
 })
 
 function App() {
+  const handleDataPaste = (data: string) => {
+    console.log('Pasted data:', data)
+    // TODO: Handle parsed data in upcoming sub-tasks
+  }
+
   return (
-    <div className="text-center">
-      <header className="min-h-screen flex flex-col items-center justify-center bg-[#282c34] text-white text-[calc(10px+2vmin)]">
-        <img
-          src={logo}
-          className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
-          alt="logo"
+    <Container size="xl" className="py-8">
+      <Stack gap="xl">
+        <div className="text-center">
+          <Title order={1} className="text-3xl font-bold text-gray-800 mb-2">
+            Order Management System
+          </Title>
+          <p className="text-gray-600 text-lg">
+            Paste your order data and generate organized PDFs by vendor
+          </p>
+        </div>
+        
+        <OrderClipboardPaste 
+          onDataPaste={handleDataPaste}
+          className="max-w-4xl mx-auto"
         />
-        <p>
-          Edit <code>src/routes/index.tsx</code> and save to reload.
-        </p>
-        <a
-          className="text-[#61dafb] hover:underline"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <a
-          className="text-[#61dafb] hover:underline"
-          href="https://tanstack.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn TanStack
-        </a>
-      </header>
-    </div>
+      </Stack>
+    </Container>
   )
 }
