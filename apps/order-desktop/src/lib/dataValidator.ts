@@ -47,16 +47,14 @@ export function validateData(rows: ParsedRow[]): ValidationResult {
       const value = row[headerName] || '';
       const fieldValidation = validateFieldValue(value, field, rowNumber);
       
-      if (fieldValidation.length > 0) {
-        fieldValidation.forEach(error => {
+        for (const error of fieldValidation) {
           if (error.severity === 'error') {
             result.errors.push(error);
             rowIsValid = false;
           } else {
             result.warnings.push(error);
           }
-        });
-      }
+        };
     });
 
     if (rowIsValid) {
@@ -220,23 +218,6 @@ function isValidUrl(value: string): boolean {
   }
 }
 
-/**
- * Validates the column mapping itself
- */
-function validateMapping(mapping: ColumnMapping): { isValid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  
-  REQUIRED_FIELDS.forEach(field => {
-    if (field.required && !mapping[field.key]) {
-      errors.push(`Required field "${field.label}" is not mapped to any column`);
-    }
-  });
-
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-}
 
 /**
  * Formats validation errors for display

@@ -37,11 +37,11 @@
   - [x] 3.3 Highlight cells or rows with errors.
   - [x] 3.4 Disable the "Generate PDF" button until all data is valid.
 
-- [ ] 4.0 Integrate PDF generation per vendor using existing logic
-  - [ ] 4.1 Transform validated table data into the format expected by the PDF generation logic (`OrderLineItem[]`).
-  - [ ] 4.2 Call the existing PDF generation functions from `@/order-form` for each vendor.
-  - [ ] 4.3 Handle asynchronous PDF generation and loading states.
-  - [ ] 4.4 Ensure the generated PDFs use the correct layout and data.
+- [x] 4.0 Integrate PDF generation per vendor using existing logic
+  - [x] 4.1 Transform validated table data into the format expected by the PDF generation logic (`OrderLineItem[]`).
+  - [x] 4.2 Call the existing PDF generation functions from `@/order-form` for each vendor.
+  - [x] 4.3 Handle asynchronous PDF generation and loading states.
+  - [x] 4.4 Ensure the generated PDFs use the correct layout and data.
 
 - [ ] 5.0 Implement error handling, user feedback, and download functionality
   - [ ] 5.1 Provide clear feedback for parsing, validation, and PDF generation errors.

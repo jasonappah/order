@@ -1,5 +1,3 @@
-import { normalizeColumnName } from './clipboardParser';
-
 export interface RequiredField {
   key: string;
   label: string;
@@ -78,80 +76,8 @@ export function createColumnMapping(): MappingResult {
   };
 }
 
-/**
- * Generates field variations for matching
- */
-function getFieldVariations(field: RequiredField): string[] {
-  const variations: { [key: string]: string[] } = {
-    'priority': ['priority', 'pri', 'importance', 'order', 'rank'],
-    'classification': ['classification', 'class', 'category', 'type', 'group'],
-    'name': ['name', 'title', 'item', 'product', 'description', 'item name', 'product name'],
-    'vendor': ['vendor', 'supplier', 'company', 'manufacturer', 'seller'],
-    'partNumber': ['part number', 'part #', 'partnumber', 'partno', 'part', 'sku', 'model', 'model number'],
-    'link': ['link', 'url', 'website', 'source', 'product link', 'product url'],
-    'pricePerUnit': ['price per unit', 'priceperunit', 'price', 'unit price', 'unitprice', 'cost', 'unit cost'],
-    'quantity': ['quantity', 'qty', 'amount', 'count', 'number', 'num'],
-    'tax': ['tax', 'taxes', 'vat', 'tax amount'],
-    'shippingHandling': ['shipping handling', 'shippinghandling', 'shipping', 'sh', 's&h', 'freight', 'shipping cost'],
-    'total': ['total', 'sum', 'amount', 'total cost', 'grand total', 'final total'],
-    'deliveryType': ['delivery type', 'deliverytype', 'delivery', 'shipping type', 'shipping method', 'method'],
-    'notes': ['notes', 'comments', 'remarks', 'description', 'additional notes']
-  };
 
-  return variations[field.key] || [field.label.toLowerCase()];
-}
 
-/**
- * Generates suggestions for unmapped headers
- */
-function generateSuggestions(header: string): string[] {
-  const normalized = normalizeColumnName(header);
-  const suggestions: string[] = [];
-
-  REQUIRED_FIELDS.forEach(field => {
-    const variations = getFieldVariations(field);
-    const score = calculateSimilarity(normalized, variations);
-    
-    if (score > 0.3) { // Threshold for suggestions
-      suggestions.push(field.key);
-    }
-  });
-
-  // Sort by best match (could implement more sophisticated scoring)
-  return suggestions.slice(0, 3); // Limit to top 3 suggestions
-}
-
-/**
- * Calculates similarity score between header and field variations
- */
-function calculateSimilarity(header: string, variations: string[]): number {
-  let maxScore = 0;
-
-  variations.forEach(variation => {
-    const normalized = normalizeColumnName(variation);
-    let score = 0;
-
-    // Exact match
-    if (header === normalized) {
-      score = 1.0;
-    }
-    // Contains match
-    else if (header.includes(normalized) || normalized.includes(header)) {
-      score = 0.7;
-    }
-    // Partial word match
-    else {
-      const headerWords = header.split(/\s+/);
-      const variationWords = normalized.split(/\s+/);
-      const commonWords = headerWords.filter(word => variationWords.includes(word));
-      score = commonWords.length / Math.max(headerWords.length, variationWords.length);
-    }
-
-    maxScore = Math.max(maxScore, score);
-  });
-
-  return maxScore;
-}
 
 /**
  * Updates mapping with user selection
@@ -165,11 +91,11 @@ export function updateMapping(
   
   // Remove previous mapping for this header if it exists
   if (headerName) {
-    Object.keys(newMapping).forEach(key => {
+    for (const key of Object.keys(newMapping)) {
       if (newMapping[key] === headerName) {
         newMapping[key] = null;
       }
-    });
+    }
   }
   
   newMapping[fieldKey] = headerName;
@@ -182,11 +108,11 @@ export function updateMapping(
 export function validateMapping(mapping: ColumnMapping): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
   
-  REQUIRED_FIELDS.forEach(field => {
+  for (const field of REQUIRED_FIELDS) {
     if (field.required && !mapping[field.key]) {
       errors.push(`Required field "${field.label}" is not mapped`);
     }
-  });
+  }
 
   return {
     isValid: errors.length === 0,

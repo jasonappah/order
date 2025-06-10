@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
-import { Textarea, Text, Paper, Stack, Table, ScrollArea, TextInput, Button } from '@mantine/core';
+import { Textarea, Text, Paper, Stack, Table, ScrollArea, TextInput, Button, Group, Loader, Alert, Badge } from '@mantine/core';
 import { parseClipboardData, type ParseResult } from '../lib/clipboardParser';
 import { validateData, type ValidationResult, getValidationSummary } from '../lib/dataValidator';
 import { REQUIRED_FIELDS } from '../lib/columnMapper';
+import { transformToOrderLineItems } from '../lib/dataTransformer';
+import { generateOrderPDFs, downloadAllPDFs, previewPDFGeneration, type GeneratedPDF } from '../lib/pdfGenerator';
 
 interface OrderClipboardPasteProps {
   onDataPaste?: (data: string) => void;
@@ -15,6 +17,9 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [editableData, setEditableData] = useState<any[]>([]);
+  const [isGeneratingPDFs, setIsGeneratingPDFs] = useState(false);
+  const [generatedPDFs, setGeneratedPDFs] = useState<GeneratedPDF[]>([]);
+  const [pdfGenerationErrors, setPdfGenerationErrors] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
@@ -67,6 +72,55 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
       onValidDataReady(updatedData);
     }
   };
+
+  const handleGeneratePDFs = async () => {
+    if (!validationResult?.isValid || editableData.length === 0) {
+      return;
+    }
+
+    setIsGeneratingPDFs(true);
+    setPdfGenerationErrors([]);
+    setGeneratedPDFs([]);
+
+    try {
+      // Transform data to OrderLineItems
+      const orderItems = transformToOrderLineItems(editableData);
+      
+      // Generate PDFs
+      const result = await generateOrderPDFs(orderItems, {
+        projectName: 'CRUTD Order', // Default project name - could be made configurable
+        businessJustification: 'Parts needed for robotics project development',
+        requestDate: new Date()
+      });
+
+      if (result.success) {
+        setGeneratedPDFs(result.pdfs);
+        
+        // Auto-download all PDFs
+        downloadAllPDFs(result.pdfs);
+      } else {
+        setPdfGenerationErrors(result.errors);
+      }
+
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      setPdfGenerationErrors([
+        error instanceof Error ? error.message : 'Unknown error during PDF generation'
+      ]);
+    } finally {
+      setIsGeneratingPDFs(false);
+    }
+  };
+
+  // Calculate preview information
+  const pdfPreview = editableData.length > 0 ? (() => {
+    try {
+      const orderItems = transformToOrderLineItems(editableData);
+      return previewPDFGeneration(orderItems);
+    } catch {
+      return null;
+    }
+  })() : null;
 
   return (
     <Paper 
@@ -184,7 +238,7 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
             {validationResult && !validationResult.isValid && (
               <Paper p="sm" mt="md" bg="red.0" withBorder>
                 <Text size="sm" fw={600} c="red" mb="xs">Validation Errors:</Text>
-                {validationResult.errors.slice(0, 5).map((error, index) => (
+                {validationResult.errors.slice(0, 5).map((error) => (
                   <Text key={error.id} size="xs" c="red">
                     • Row {error.row}: {error.error}
                   </Text>
@@ -197,13 +251,55 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
               </Paper>
             )}
 
-            <Button 
-              mt="md" 
-              disabled={!validationResult?.isValid}
-              size="sm"
-            >
-              Generate PDF
-            </Button>
+            {pdfPreview && (
+              <Paper p="sm" mt="md" bg="blue.0" withBorder>
+                <Text size="sm" fw={600} mb="xs">PDF Generation Preview:</Text>
+                <Group gap="md">
+                  <Badge variant="light" color="blue">
+                    {pdfPreview.vendorCount} vendor{pdfPreview.vendorCount !== 1 ? 's' : ''}
+                  </Badge>
+                  <Badge variant="light" color="green">
+                    {pdfPreview.totalItems} item{pdfPreview.totalItems !== 1 ? 's' : ''}
+                  </Badge>
+                </Group>
+                <Text size="xs" c="dimmed" mt="xs">
+                  Vendors: {pdfPreview.vendors.join(', ')}
+                </Text>
+              </Paper>
+            )}
+
+            <Group mt="md">
+              <Button 
+                disabled={!validationResult?.isValid || isGeneratingPDFs}
+                size="sm"
+                onClick={handleGeneratePDFs}
+                leftSection={isGeneratingPDFs ? <Loader size="xs" /> : undefined}
+              >
+                {isGeneratingPDFs ? 'Generating PDFs...' : 'Generate & Download PDFs'}
+              </Button>
+            </Group>
+
+            {generatedPDFs.length > 0 && (
+              <Alert variant="light" color="green" mt="md">
+                <Text size="sm" fw={600}>✅ Successfully generated {generatedPDFs.length} PDF{generatedPDFs.length !== 1 ? 's' : ''}</Text>
+                {generatedPDFs.map((pdf, index) => (
+                  <Text key={index} size="xs">
+                    • {pdf.vendor}: {pdf.itemCount} item{pdf.itemCount !== 1 ? 's' : ''} ({pdf.filename})
+                  </Text>
+                ))}
+              </Alert>
+            )}
+
+            {pdfGenerationErrors.length > 0 && (
+              <Alert variant="light" color="red" mt="md">
+                <Text size="sm" fw={600}>❌ PDF Generation Errors:</Text>
+                {pdfGenerationErrors.map((error, index) => (
+                  <Text key={index} size="xs">
+                    • {error}
+                  </Text>
+                ))}
+              </Alert>
+            )}
           </Paper>
         )}
       </Stack>
