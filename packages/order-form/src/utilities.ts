@@ -28,4 +28,5 @@ export const generatePdfName = (
 	projectName: string,
 	vendor: string,
 	requestDate: Date,
-) => `${projectName} order at ${vendor} ${formatDate(requestDate).replace(/\//g, "-")}.pdf`;
+	orgName?: string,
+) => `${orgName ? `${orgName} ` : ""}${projectName} order at ${vendor} ${formatDate(requestDate).replace(/\//g, "-")}.pdf`;

@@ -1,16 +1,27 @@
+// TODO: separate out CRUTD stuff from the general order form stuff
+
 import { PDFDocument } from "pdf-lib";
 import { generateOrderListPDF } from "./generate-order-list-pdf";
 import { generatePurchaseFormPDF } from "./generate-purchase-form-pdf";
-import type { OrderLineItem } from "./types";
-import { calculateTotalCents, groupItemsByVendor } from "./utilities";
+import type { GeneratedPDF, OrderLineItem } from "./types";
+import { calculateTotalCents, generatePdfName, groupItemsByVendor } from "./utilities";
 
-type GenerateOrderFormsForCRUTDProjectInput = {
+type GenerateOrderFormsInput = {
 	items: OrderLineItem[];
-	project: CometProject;
 	justification?: string;
 	contactName: string;
 	contactEmail: string;
 	contactPhone: string;
+	project: string;
+	orgName: string;
+	requestDate?: Date;
+};
+
+type GenerateOrderFormsForCRUTDProjectInput = Omit<GenerateOrderFormsInput, "justification" | "orgName"> & {
+	project: CometProject;
+	justification?: {
+		replace: string;
+	} | {append: string};
 };
 
 const cometProjects = {
@@ -26,32 +37,50 @@ const cometProjects = {
 	SRP: "Solis Rover Project",
 } as const;
 
+const generalJustification = 'These parts are needed for continued research and development on club projects.' as const;
+
 export type CometProject = keyof typeof cometProjects;
 
 export async function generateOrderFormsForCRUTDProject(
 	data: GenerateOrderFormsForCRUTDProjectInput,
 ) {
-	let businessJustification = `These parts are needed for the ${cometProjects[data.project]} team to continue research and development on their project.`;
+	const projectName = cometProjects[data.project];
+	let justification = `These parts are needed for the ${projectName} team to continue research and development on their project.`;
 	if (data.justification) {
-		businessJustification += `\n\n${data.justification}`;
+		if ("replace" in data.justification) {
+			justification = data.justification.replace;
+		} else {
+			justification += `\n\n${data.justification.append}`;
+		}
 	}
 
-	const projectName = cometProjects[data.project];
-	const requestDate = new Date();
 
+	return generateOrderForms({
+		...data,
+		justification,
+		project: projectName,
+		orgName: "Comet Robotics",
+	});
+}
+
+
+export async function generateOrderForms(
+	data: GenerateOrderFormsInput,
+) {
+	const requestDate = data.requestDate ?? new Date();
+	const businessJustification = data.justification ?? generalJustification;
 	const itemsGroupedByVendor = groupItemsByVendor(data.items);
+
 	const orderListPromises = Object.entries(itemsGroupedByVendor).map(
 		([vendor, items]) =>
 			async () => ({
 				orderListPdf: await generateOrderListPDF({
 					requestDate,
 					items,
-					projectName,
-					businessJustification,
 					vendor,
 				}),
 				purchaseFormPdf: await generatePurchaseFormPDF({
-					orgName: "Comet Robotics",
+					orgName: data.orgName,
 					contactName: data.contactName,
 					contactEmail: data.contactEmail,
 					contactPhone: data.contactPhone,
@@ -60,17 +89,24 @@ export async function generateOrderFormsForCRUTDProject(
 					totalQuoteCostCents: calculateTotalCents(items),
 				}),
 				vendor,
-				projectName,
+				projectName: data.project,
 				requestDate,
+				items
 			}),
 	);
 	const orderLists = await Promise.all(orderListPromises.map((p) => p()));
 
-	const mergedOrderForms: {pdf: Uint8Array, vendor: string, projectName: string, requestDate: Date}[] = [];
+	
+
+	const mergedOrderForms: GeneratedPDF[] = [];
 	for (const orderList of orderLists) {
-		const orderListPdfDoc = await PDFDocument.load(orderList.orderListPdf);
-		const merged = await mergePDFs([await PDFDocument.load(orderList.purchaseFormPdf), orderListPdfDoc]);
-		mergedOrderForms.push({...orderList, pdf: await merged.save()});
+		const [orderListPdfDoc, purchaseFormPdfDoc] = await Promise.all([
+			PDFDocument.load(orderList.orderListPdf), 
+			PDFDocument.load(orderList.purchaseFormPdf)
+		]);
+
+		const merged = await mergePDFs([purchaseFormPdfDoc, orderListPdfDoc]);
+		mergedOrderForms.push({...orderList, pdfBuffer: await merged.save(), filename: generatePdfName(data.project, orderList.vendor, requestDate, data.orgName), itemCount: orderList.items.length});
 	}
 
 	return mergedOrderForms;

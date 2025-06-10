@@ -43,9 +43,11 @@ type GeneratePurchaseFormPDFInput = {
 export async function generatePurchaseFormPDF(
 	data: GeneratePurchaseFormPDFInput,
 ) {
+	// TODO: Figure out alternative to this - won't work in browser...
 	const existingPdfBytes = await fs.readFile(
 		`${__dirname}/../Jonsson School Student Organization Purchase Form.pdf`,
 	);
+	
 	const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
 	const form = pdfDoc.getForm();

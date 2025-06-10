@@ -4,7 +4,9 @@ import { parseClipboardData, type ParseResult } from '../lib/clipboardParser';
 import { validateData, type ValidationResult, getValidationSummary } from '../lib/dataValidator';
 import { REQUIRED_FIELDS } from '../lib/columnMapper';
 import { transformToOrderLineItems } from '../lib/dataTransformer';
-import { generateOrderPDFs, downloadAllPDFs, previewPDFGeneration, type GeneratedPDF } from '../lib/pdfGenerator';
+import { downloadAllPDFs, previewPDFGeneration } from '../lib/pdfGenerator';
+import { generateOrderForms } from '../../../../packages/order-form/src/generate-order-forms-for-crutd-project';
+import type { GeneratedPDF } from '../../../../packages/order-form/src/types';
 
 interface OrderClipboardPasteProps {
   onDataPaste?: (data: string) => void;
@@ -21,11 +23,6 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
   const [generatedPDFs, setGeneratedPDFs] = useState<GeneratedPDF[]>([]);
   const [pdfGenerationErrors, setPdfGenerationErrors] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const clipboardData = event.clipboardData.getData('text');
-    processData(clipboardData);
-  };
 
   const handleChange = (value: string) => {
     processData(value);
@@ -87,20 +84,18 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
       const orderItems = transformToOrderLineItems(editableData);
       
       // Generate PDFs
-      const result = await generateOrderPDFs(orderItems, {
-        projectName: 'CRUTD Order', // Default project name - could be made configurable
-        businessJustification: 'Parts needed for robotics project development',
-        requestDate: new Date()
+      const result = await generateOrderForms({
+        items: orderItems,
+        // TODO: all this should be configurable
+        contactName: "John Doe",
+        contactEmail: "john.doe@example.com",
+        contactPhone: "123-456-7890",
+        project: "General",
+        orgName: "Comet Robotics",
       });
 
-      if (result.success) {
-        setGeneratedPDFs(result.pdfs);
-        
-        // Auto-download all PDFs
-        downloadAllPDFs(result.pdfs);
-      } else {
-        setPdfGenerationErrors(result.errors);
-      }
+    setGeneratedPDFs(result);
+    downloadAllPDFs(result);
 
     } catch (error) {
       console.error('PDF generation error:', error);
@@ -146,7 +141,6 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
           placeholder="Paste your tab-separated order data here..."
           value={pastedData}
           onChange={(event) => handleChange(event.currentTarget.value)}
-          onPaste={handlePaste}
           minRows={8}
           autosize
           className="font-mono text-sm"
@@ -158,13 +152,6 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
               fontSize: '13px',
               fontFamily: 'monospace',
               backgroundColor: '#f8f9fa',
-            }
-          }}
-          onKeyDown={(event) => {
-            // Handle keyboard shortcuts for accessibility
-            if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
-              // Allow Ctrl+A / Cmd+A to select all
-              event.currentTarget.select();
             }
           }}
         />

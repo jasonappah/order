@@ -59,9 +59,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type OrderListPDFProps = { 
-  projectName: string
-  businessJustification: string
+type OrderListPDFProps = {
   requestDate: Date
   items: OrderLineItem[]
   vendor: string
@@ -69,7 +67,7 @@ type OrderListPDFProps = {
 
 
 
-export const OrderListPDF = ({ projectName, businessJustification, requestDate, items, vendor }: OrderListPDFProps) => {
+export const OrderListPDF = ({ requestDate, items, vendor }: OrderListPDFProps) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>

@@ -8,3 +8,12 @@ export type OrderLineItem = {
     notes?: string
 }
 
+export type GeneratedPDF = {
+    pdfBuffer: Uint8Array;
+    vendor: string;
+    projectName: string;
+    requestDate: Date;
+    filename: string;
+    itemCount: number;
+};
+
