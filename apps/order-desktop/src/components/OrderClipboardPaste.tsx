@@ -7,14 +7,20 @@ import { transformToOrderLineItems } from '../lib/dataTransformer';
 import { downloadAllPDFs, previewPDFGeneration } from '../lib/pdfGenerator';
 import { generateOrderForms } from '../../../../packages/order-form/src/generate-order-forms-for-crutd-project';
 import type { GeneratedPDF } from '../../../../packages/order-form/src/types';
+import { readFile } from '@tauri-apps/plugin-fs';
+import { resolveResource } from '@tauri-apps/api/path';
+
+const purchaseFormPdfResolverOnTauriApp = async () => {
+    const purchaseFormPdfBytes = await readFile(await resolveResource('resources/Jonsson School Student Organization Purchase Form.pdf'))
+    return purchaseFormPdfBytes
+  }
+
 
 interface OrderClipboardPasteProps {
-  onDataPaste?: (data: string) => void;
-  onValidDataReady?: (data: any[]) => void;
   className?: string;
 }
 
-export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }: OrderClipboardPasteProps) {
+export function OrderClipboardPaste({ className }: OrderClipboardPasteProps) {
   const [pastedData, setPastedData] = useState<string>('');
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
@@ -30,10 +36,6 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
 
   const processData = (data: string) => {
     setPastedData(data);
-    
-    if (onDataPaste) {
-      onDataPaste(data);
-    }
 
     if (!data.trim()) {
       setParseResult(null);
@@ -64,10 +66,6 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
     const validation = validateData(updatedData);
     setValidationResult(validation);
 
-    // Notify parent if data is valid
-    if (validation.isValid && onValidDataReady) {
-      onValidDataReady(updatedData);
-    }
   };
 
   const handleGeneratePDFs = async () => {
@@ -92,7 +90,7 @@ export function OrderClipboardPaste({ onDataPaste, onValidDataReady, className }
         contactPhone: "123-456-7890",
         project: "General",
         orgName: "Comet Robotics",
-      });
+      }, purchaseFormPdfResolverOnTauriApp);
 
     setGeneratedPDFs(result);
     downloadAllPDFs(result);

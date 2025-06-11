@@ -1,5 +1,6 @@
 import { type CometProject, generateOrderFormsForCRUTDProject } from "./generate-order-forms-for-crutd-project";
 import fs from "node:fs/promises";
+import { resolvePurchaseFormPdfOnServer } from "./generate-purchase-form-pdf";
 
 (async () => {
     const project: CometProject = "SRP"
@@ -43,7 +44,7 @@ import fs from "node:fs/promises";
         contactName: "Jason Antwi-Appah",
         contactEmail: "hey@jasonaa.me",
         contactPhone: "(555) 555-5555"
-    })
+    }, resolvePurchaseFormPdfOnServer)
 
     for (const orderForm of orderForms) {
         await fs.writeFile(`${__dirname}/../out/${orderForm.filename}`, orderForm.pdfBuffer)

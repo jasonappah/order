@@ -1271,6 +1271,11 @@
   resolved "https://registry.yarnpkg.com/@tanstack/virtual-file-routes/-/virtual-file-routes-1.115.0.tgz#7d5bfa133808cf6718687a54822671ecf744a9bb"
   integrity sha512-XLUh1Py3AftcERrxkxC5Y5m5mfllRH3YR6YVlyjFgI2Tc2Ssy2NKmQFQIafoxfW459UJ8Dn81nWKETEIJifE4g==
 
+"@tauri-apps/api@^2.0.0":
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/api/-/api-2.5.0.tgz#f1c67b5505ba689621b549f9d0165389337586dc"
+  integrity sha512-Ldux4ip+HGAcPUmuLT8EIkk6yafl5vK0P0c0byzAKzxJh7vxelVtdPONjfgTm96PbN24yjZNESY8CKo8qniluA==
+
 "@tauri-apps/cli-darwin-arm64@2.5.0":
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/@tauri-apps/cli-darwin-arm64/-/cli-darwin-arm64-2.5.0.tgz#930ce605d5624e6a11ed9f57f17c605a4443a3f5"
@@ -1342,6 +1347,13 @@
     "@tauri-apps/cli-win32-arm64-msvc" "2.5.0"
     "@tauri-apps/cli-win32-ia32-msvc" "2.5.0"
     "@tauri-apps/cli-win32-x64-msvc" "2.5.0"
+
+"@tauri-apps/plugin-fs@~2":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-fs/-/plugin-fs-2.3.0.tgz#f75258385b61b19bb22d7d94d01f156fc594e20e"
+  integrity sha512-G9gEyYVUaaxhdRJBgQTTLmzAe0vtHYxYyN1oTQzU3zwvb8T+tVLcAqCdFMWHq0qGeGbmynI5whvYpcXo5LvZ1w==
+  dependencies:
+    "@tauri-apps/api" "^2.0.0"
 
 "@testing-library/dom@^10.4.0":
   version "10.4.0"

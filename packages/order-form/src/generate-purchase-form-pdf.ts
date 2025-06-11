@@ -1,5 +1,4 @@
 import { PDFDocument, PDFTextField } from "pdf-lib";
-import fs from "node:fs/promises";
 import { formatCentsAsDollarString, formatDate } from "./utilities";
 
 const purchaseFormDataKeyToPdfFormFieldName: Record<
@@ -40,13 +39,26 @@ type GeneratePurchaseFormPDFInput = {
 	totalQuoteCostCents: number;
 };
 
+
+/**
+ * @platform node
+ * @returns The bytes of the purchase form PDF
+ */
+export const resolvePurchaseFormPdfOnServer = async () => {
+	if (globalThis.window) {
+		throw new Error("Need to pass in a browser-compatible `purchaseFormPdfResolver` to `generatePurchaseFormPDF` to run in a browser. This resolver implementation will not work in a browser due to use of `node:fs/promises`.")
+	}
+	const readFile = await import("node:fs/promises").then(m => m.readFile)
+	return readFile(`${__dirname}/../../../resources/Jonsson School Student Organization Purchase Form.pdf`)
+}
+
+export type PurchaseFormPDFResolver = () => Promise<Parameters<typeof PDFDocument.load>[0]>
+
 export async function generatePurchaseFormPDF(
 	data: GeneratePurchaseFormPDFInput,
+	purchaseFormPdfResolver: PurchaseFormPDFResolver,
 ) {
-	// TODO: Figure out alternative to this - won't work in browser...
-	const existingPdfBytes = await fs.readFile(
-		`${__dirname}/../Jonsson School Student Organization Purchase Form.pdf`,
-	);
+	const existingPdfBytes = await purchaseFormPdfResolver()
 	
 	const pdfDoc = await PDFDocument.load(existingPdfBytes);
 

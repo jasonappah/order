@@ -2,7 +2,7 @@
 
 import { PDFDocument } from "pdf-lib";
 import { generateOrderListPDF } from "./generate-order-list-pdf";
-import { generatePurchaseFormPDF } from "./generate-purchase-form-pdf";
+import { generatePurchaseFormPDF, type PurchaseFormPDFResolver } from "./generate-purchase-form-pdf";
 import type { GeneratedPDF, OrderLineItem } from "./types";
 import { calculateTotalCents, generatePdfName, groupItemsByVendor } from "./utilities";
 
@@ -43,6 +43,7 @@ export type CometProject = keyof typeof cometProjects;
 
 export async function generateOrderFormsForCRUTDProject(
 	data: GenerateOrderFormsForCRUTDProjectInput,
+	purchaseFormPdfResolver: PurchaseFormPDFResolver,
 ) {
 	const projectName = cometProjects[data.project];
 	let justification = `These parts are needed for the ${projectName} team to continue research and development on their project.`;
@@ -60,12 +61,13 @@ export async function generateOrderFormsForCRUTDProject(
 		justification,
 		project: projectName,
 		orgName: "Comet Robotics",
-	});
+	}, purchaseFormPdfResolver);
 }
 
 
 export async function generateOrderForms(
 	data: GenerateOrderFormsInput,
+	purchaseFormPdfResolver: PurchaseFormPDFResolver,
 ) {
 	const requestDate = data.requestDate ?? new Date();
 	const businessJustification = data.justification ?? generalJustification;
@@ -87,7 +89,7 @@ export async function generateOrderForms(
 					businessJustification,
 					studentSignatureDate: requestDate,
 					totalQuoteCostCents: calculateTotalCents(items),
-				}),
+				}, purchaseFormPdfResolver),
 				vendor,
 				projectName: data.project,
 				requestDate,
