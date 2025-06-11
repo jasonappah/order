@@ -78,7 +78,6 @@ export function OrderClipboardPaste({ className }: OrderClipboardPasteProps) {
     setGeneratedPDFs([]);
 
     try {
-      // Transform data to OrderLineItems
       const orderItems = transformToOrderLineItems(editableData);
       
       // Generate PDFs
@@ -93,7 +92,7 @@ export function OrderClipboardPaste({ className }: OrderClipboardPasteProps) {
       }, purchaseFormPdfResolverOnTauriApp);
 
     setGeneratedPDFs(result);
-    downloadAllPDFs(result);
+    await downloadAllPDFs(result);
 
     } catch (error) {
       console.error('PDF generation error:', error);

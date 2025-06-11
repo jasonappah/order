@@ -9,6 +9,9 @@
     "core:default",
     "fs:allow-read-text-file",
     "fs:allow-resource-read-recursive",
-    "dialog:default"
+    "dialog:allow-open",
+    "fs:allow-write",
+    "fs:allow-create",
+    "fs:allow-write-file"
   ]
 }
