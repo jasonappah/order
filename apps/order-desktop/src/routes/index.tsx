@@ -7,10 +7,6 @@ export const Route = createFileRoute('/')({
 })
 
 function App() {
-  const handleDataPaste = (data: string) => {
-    console.log('Pasted data:', data)
-    // TODO: Handle parsed data in upcoming sub-tasks
-  }
 
   return (
     <Container size="xl" className="py-8">
@@ -25,7 +21,6 @@ function App() {
         </div>
         
         <OrderClipboardPaste 
-          onDataPaste={handleDataPaste}
           className="max-w-4xl mx-auto"
         />
       </Stack>
