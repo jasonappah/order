@@ -31,7 +31,7 @@ export function transformToOrderLineItems(rows: ParsedRow[]): OrderLineItem[] {
         name: `${name}${partNumber ? ` (${partNumber})` : ''}`, // Include part number in name
         vendor: vendor.trim(),
         quantity: quantity,
-        url: link,
+        url: cleanAmazonUrl(link),
         pricePerUnitCents: Math.round(pricePerUnit * 100), // Convert to cents
         shippingAndHandlingCents: Math.round(shippingHandling * 100), // Convert to cents
         notes: [
@@ -81,3 +81,31 @@ export function validateOrderLineItems(items: OrderLineItem[]): { isValid: boole
   };
 }
 
+
+// TODO: later, move this into the order-form package. tbh a lot of the stuff that cursor did should be in the order-form package.
+/**
+ * Cleans Amazon URLs by removing query parameters while preserving the essential product path
+ * @param url The Amazon URL to clean
+ * @returns Cleaned URL without query parameters, or original URL if not an Amazon URL
+ */
+export function cleanAmazonUrl(url: string): string {
+  // console.log('Cleaning Amazon URL:', url);
+  if (!url || typeof url !== 'string') {
+    return url;
+  }
+
+  try {
+    const urlObj = new URL(url);
+    
+    if (!urlObj.hostname.match(/^(www\.)?amazon\.com$/)) {
+      return url; 
+    }
+
+    urlObj.search = ""
+    urlObj.hash = ""
+
+    return urlObj.toString()
+  } catch (error) {
+    return url;
+  }
+}
