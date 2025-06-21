@@ -174,33 +174,3 @@ export function normalizeColumnName(name: string): string {
     .trim();
 }
 
-/**
- * Gets suggestions for column mapping based on common variations
- */
-export function getColumnSuggestions(headerName: string): string[] {
-  const normalized = normalizeColumnName(headerName);
-  
-  const suggestions: { [key: string]: string[] } = {
-    'priority': ['priority', 'pri', 'importance', 'order'],
-    'classification': ['classification', 'class', 'category', 'type'],
-    'name': ['name', 'title', 'item', 'product', 'description'],
-    'vendor': ['vendor', 'supplier', 'company', 'manufacturer'],
-    'partnumber': ['partnumber', 'partno', 'part', 'sku', 'model'],
-    'link': ['link', 'url', 'website', 'source'],
-    'priceperunit': ['priceperunit', 'price', 'unitprice', 'cost'],
-    'quantity': ['quantity', 'qty', 'amount', 'count'],
-    'tax': ['tax', 'taxes', 'vat'],
-    'shippinghandling': ['shippinghandling', 'shipping', 'sh', 'freight'],
-    'total': ['total', 'sum', 'amount', 'cost'],
-    'deliverytype': ['deliverytype', 'delivery', 'shipping', 'method'],
-    'notes': ['notes', 'comments', 'remarks', 'description']
-  };
-
-  for (const [standardName, variations] of Object.entries(suggestions)) {
-    if (variations.includes(normalized)) {
-      return [standardName];
-    }
-  }
-
-  return [];
-} 
