@@ -76,43 +76,90 @@ export function parseClipboardData(data: string): ParseResult {
 /**
  * Parses a single line of tab-separated values
  * Handles quoted values and escaped characters
+ * Supports quotes within unquoted text (like inches notation)
  */
 function parseTabSeparatedLine(line: string): string[] {
   if (!line) return [];
   
+  // State machine states
+  enum State {
+    START_FIELD = 0,      // Beginning of a new field
+    IN_UNQUOTED = 1,      // Reading unquoted field content
+    IN_QUOTED = 2,        // Reading quoted field content
+    ESCAPE_QUOTE = 3      // Handling escaped quote in quoted field
+  }
+  
   const values: string[] = [];
   let current = '';
-  let inQuotes = false;
+  let state = State.START_FIELD;
   let i = 0;
 
   while (i < line.length) {
     const char = line[i];
     
-    if (char === '"' && !inQuotes) {
-      // Start of quoted value
-      inQuotes = true;
-    } else if (char === '"' && inQuotes) {
-      // Check for escaped quote
-      if (i + 1 < line.length && line[i + 1] === '"') {
+    switch (state) {
+      case State.START_FIELD:
+        if (char === '"') {
+          // Start of quoted field
+          state = State.IN_QUOTED;
+        } else if (char === '\t') {
+          // Empty field, move to next
+          values.push('');
+          state = State.START_FIELD;
+        } else {
+          // Start of unquoted field
+          current += char;
+          state = State.IN_UNQUOTED;
+        }
+        break;
+        
+      case State.IN_UNQUOTED:
+        if (char === '\t') {
+          // End of unquoted field
+          values.push(current.trim());
+          current = '';
+          state = State.START_FIELD;
+        } else {
+          // Continue reading unquoted content
+          current += char;
+        }
+        break;
+        
+      case State.IN_QUOTED:
+        if (char === '"') {
+          // Check for escaped quote
+          if (i + 1 < line.length && line[i + 1] === '"') {
+            state = State.ESCAPE_QUOTE;
+          } else {
+            // End of quoted field
+            values.push(current.trim());
+            current = '';
+            state = State.START_FIELD;
+          }
+        } else {
+          // Continue reading quoted content
+          current += char;
+        }
+        break;
+        
+      case State.ESCAPE_QUOTE:
+        // Add the escaped quote and continue in quoted state
         current += '"';
-        i++; // Skip next quote
-      } else {
-        // End of quoted value
-        inQuotes = false;
-      }
-    } else if (char === '\t' && !inQuotes) {
-      // Tab separator outside quotes
-      values.push(current.trim());
-      current = '';
-    } else {
-      current += char;
+        state = State.IN_QUOTED;
+        break;
     }
     
     i++;
   }
   
-  // Add final value
-  values.push(current.trim());
+  // Handle final field
+  if (state === State.START_FIELD && current === '') {
+    // Empty field at end
+    values.push('');
+  } else {
+    // Add final field content
+    values.push(current.trim());
+  }
   
   return values;
 }
