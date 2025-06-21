@@ -11,15 +11,14 @@ export async function downloadAllPDFs(pdfs: GeneratedPDF[]): Promise<void> {
     directory: true,
     title: "Select a folder to save the PDFs to"
   })
-  console.log("folder", folder)
   if (!folder) {
     return
   }
-  for (const pdf of pdfs) {
-    await writeFile(folder + "/" + pdf.filename, pdf.pdfBuffer, {
+  await Promise.all(pdfs.map(pdf => 
+    writeFile(`${folder}/${pdf.filename}`, pdf.pdfBuffer, {
       createNew: true,
     })
-  }
+  ));
 }
 
 /**
