@@ -1,3 +1,5 @@
+import { REQUIRED_FIELDS } from "./columnMapper";
+
 export interface ParsedRow {
   [key: string]: string;
 }
@@ -17,7 +19,7 @@ export interface ParseResult {
  */
 export function parseClipboardData(data: string): ParseResult {
   const result: ParseResult = {
-    headers: ['Name', 'Vendor', 'Part #', 'Link', 'Price per Unit', 'Quantity', 'Tax', 'S&H', 'TOTAL', 'Delivery Type', 'Notes'],
+    headers: REQUIRED_FIELDS.map(field => field.label),
     rows: [],
     errors: [],
     warnings: []

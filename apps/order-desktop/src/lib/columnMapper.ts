@@ -16,6 +16,7 @@ export const REQUIRED_FIELDS: RequiredField[] = [
   { key: 'tax', label: 'Tax', required: false, type: 'number', description: 'Tax amount in dollars' },
   { key: 'shippingHandling', label: 'S&H', required: false, type: 'number', description: 'Shipping and handling cost' },
   { key: 'total', label: 'TOTAL', required: false, type: 'number', description: 'Total cost including all fees' },
+  { key: 'orderTotal', label: 'Order Total', required: false, type: 'string', description: 'Total cost including all fees. this field is not actually used in this app, but exists as a hidden column in the spreadsheet, so is here for copy paste ability' },
   { key: 'deliveryType', label: 'Delivery Type', required: false, type: 'string', description: 'Delivery method or type' },
   { key: 'notes', label: 'Notes', required: false, type: 'string', description: 'Additional notes or comments' }
 ];

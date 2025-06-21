@@ -34,16 +34,13 @@ export function validateData(rows: ParsedRow[]): ValidationResult {
     id: crypto.randomUUID()
   };
 
-  // Fixed headers corresponding to our field order
-  const headers = ['Name', 'Vendor', 'Part #', 'Link', 'Price per Unit', 'Quantity', 'Tax', 'S&H', 'TOTAL', 'Delivery Type', 'Notes'];
-
   // Validate each row
   rows.forEach((row, index) => {
     const rowNumber = index + 1;
     let rowIsValid = true;
 
-    REQUIRED_FIELDS.forEach((field, fieldIndex) => {
-      const headerName = headers[fieldIndex];
+    REQUIRED_FIELDS.forEach((field) => {
+      const headerName = field.label;
       const value = row[headerName] || '';
       const fieldValidation = validateFieldValue(value, field, rowNumber);
       
@@ -66,16 +63,6 @@ export function validateData(rows: ParsedRow[]): ValidationResult {
   return result;
 }
 
-/**
- * Legacy function for mapped validation (kept for compatibility)
- * @deprecated Use validateData(rows) without mapping
- */
-export function validateDataWithMapping(
-  rows: ParsedRow[], 
-  mapping: ColumnMapping
-): ValidationResult {
-  return validateData(rows);
-}
 
 /**
  * Validates a single field value against its requirements
