@@ -84,11 +84,12 @@ export function OrderClipboardPaste({ className }: OrderClipboardPasteProps) {
       const result = await generateOrderForms({
         items: orderItems,
         // TODO: all this should be configurable
-        contactName: "John Doe",
-        contactEmail: "john.doe@example.com",
-        contactPhone: "123-456-7890",
-        project: "General",
+        contactName: "Jason Antwi-Appah",
+        contactEmail: "jxa220013@utdallas.edu",
+        contactPhone: "615-209-8642",
+        project: "Combat Robots (Plants)",
         orgName: "Comet Robotics",
+        justification:  "These parts will be used for plant combat robots designed by students over the course of the next academic year."
       }, purchaseFormPdfResolverOnTauriApp);
 
     setGeneratedPDFs(result);

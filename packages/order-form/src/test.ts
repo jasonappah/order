@@ -3,47 +3,22 @@ import fs from "node:fs/promises";
 import { resolvePurchaseFormPdfOnServer } from "./generate-purchase-form-pdf";
 
 (async () => {
-    const project: CometProject = "SRP"
+    const project: CometProject = "Plant"
     const orderForms = await generateOrderFormsForCRUTDProject({
         items: [
             {
-                name: "Antenna",
-                vendor: "Digikey",
+                name: 'Repeat Robotics Order for plants',
+                vendor: 'Repeat Robotics',
                 quantity: 1,
-                url: "https://www.digikey.com/en/products/detail/antenna",
-                pricePerUnitCents: 1023,
-                shippingAndHandlingCents: 0
-            },
-            {
-                name: "Intel Realsense D435i",
-                vendor: "Digikey",
-                quantity: 1,
-                url: "https://www.digikey.com/en/products/detail/intel-realsense-d435i",
-                pricePerUnitCents: 1000,
-                shippingAndHandlingCents: 0
-            },
-            {
-                name: 'Servo',
-                vendor: 'Amazon',
-                quantity: 1,
-                url: 'https://www.amazon.com/dp/B0BQJYJYJY',
-                pricePerUnitCents: 1000,
-                shippingAndHandlingCents: 0
-            },
-            {
-                name: "12v Boost Converter",
-                notes: "When ordering, please select the color option '12V(no Pin)'. Thanks!",
-                vendor: "AliExpress",
-                quantity: 40,
-                url: "https://www.aliexpress.us/item/2251832713406135.html",
-                pricePerUnitCents: 308,
-                shippingAndHandlingCents: 0
+                url: ' https://repeat-robotics.com/checkout/order-pay/10134/?pay_for_order=true&key=wc_order_JuzOrVJjuSx0t',
+                pricePerUnitCents: 55000,
+                shippingAndHandlingCents: 500
             }
         ],
         project,
         contactName: "Jason Antwi-Appah",
-        contactEmail: "hey@jasonaa.me",
-        contactPhone: "(555) 555-5555"
+        contactEmail: "jxa220013@utdallas.edu",
+        contactPhone: "(615) 209-8642"
     }, resolvePurchaseFormPdfOnServer)
 
     for (const orderForm of orderForms) {
