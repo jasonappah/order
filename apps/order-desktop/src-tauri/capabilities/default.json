@@ -12,6 +12,7 @@
     "dialog:allow-open",
     "fs:allow-write",
     "fs:allow-create",
-    "fs:allow-write-file"
+    "fs:allow-write-file",
+    "store:default"
   ]
 }
