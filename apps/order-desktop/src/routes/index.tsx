@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Container, Title, Stack } from '@mantine/core'
+import { Container, Stack } from '@mantine/core'
 import { OrderClipboardPaste } from '../components/OrderClipboardPaste'
 
 export const Route = createFileRoute('/')({
