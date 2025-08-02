@@ -10,6 +10,7 @@ import type { GeneratedPDF } from '../../../../packages/order-form/src/types';
 import { readFile } from '@tauri-apps/plugin-fs';
 import { resolveResource } from '@tauri-apps/api/path';
 import type { PurchaseFormPDFResolver } from '../../../../packages/order-form/src/generate-purchase-form-pdf';
+import { StateKeys, useAppState } from '@/lib/tauri-store/appState';
 
 const purchaseFormPdfResolverOnTauriApp: PurchaseFormPDFResolver = async () => {
     const purchaseFormPdfBytes = await readFile(await resolveResource('resources/Jonsson School Student Organization Purchase Form.pdf'))
@@ -31,6 +32,19 @@ export function OrderClipboardPaste({ className }: OrderClipboardPasteProps) {
   const [pdfGenerationErrors, setPdfGenerationErrors] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const user = useAppState(StateKeys.user)
+  const club = useAppState(StateKeys.club)
+  
+  if (!user) {
+    // TODO: redirect to user setup page
+    return <p>where user lol</p>
+  }
+  
+  if (!club) {
+    // TODO: redirect to club setup page
+    return <p>where club lol</p>
+  }
+  
   const handleChange = (value: string) => {
     processData(value);
   };
@@ -84,13 +98,14 @@ export function OrderClipboardPaste({ className }: OrderClipboardPasteProps) {
       // Generate PDFs
       const result = await generateOrderForms({
         items: orderItems,
-        // TODO: all this should be configurable
-        contactName: "John Doe",
-        contactEmail: "john.doe@example.com",
-        contactPhone: "123-456-7890",
-        project: "General",
-        orgName: "Comet Robotics",
-        justification:  "These parts will be used for plant combat robots designed by students over the course of the next academic year."
+        contactName: user.name,
+        contactEmail: user.email,
+        contactPhone: user.phone,
+        orgName: club.type === 'comet-robotics' ? 'Comet Robotics' : club.name,
+        justification: club.type === 'comet-robotics' ? generateCRUTDJustification({
+          // TODO: render project selector component when club is comet robotics. Render text input for justification always
+          project: 'ChessBots'
+        }) : 'Hi lol'
       }, purchaseFormPdfResolverOnTauriApp);
 
     setGeneratedPDFs(result);

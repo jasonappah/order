@@ -1,11 +1,8 @@
 import { load, Store } from '@tauri-apps/plugin-store';
-import { useEffect, useSyncExternalStore, useState, use } from 'react';
+import { useEffect, useSyncExternalStore, useState } from 'react';
+import { seedData } from './appState';
 
 const ORDER_STORE_NAME = "order.json"
-
-async function loadStore(path: string) {
-  return load(path, { autoSave: false });
-}
 
 type HookState = {
   status: 'loading' | 'error'
@@ -21,17 +18,22 @@ type HookState = {
  * @param storePath The path to the Tauri store to load.
  * @returns The state of the store loading process.
  */
-export function useTauriStore(storePath = ORDER_STORE_NAME): HookState {
+export function useTauriStore(storePath = ORDER_STORE_NAME, seedWithDefaultData = false): HookState {
   const [state, setState] = useState<HookState>({status: 'loading'})
   
   useEffect(() => {
     async function run() {
       let store: Store
       try {
-        store = await loadStore(storePath)
+        store = await load(storePath, { autoSave: false });
+        if (seedWithDefaultData) {
+          for (const [key, value] of Object.entries(seedData)) {
+            await store.set(key, value)
+          }
+        }
       } catch (e) {
         console.error(e)
-        setState({status: 'error'})
+        setState({ status: 'error' })
         return
       }
       setState({ status: 'ready', store})
@@ -52,6 +54,7 @@ export function useTauriStore(storePath = ORDER_STORE_NAME): HookState {
  * @returns The value of the key in the store.
  */
 export function useTauriStoreValue<Value extends unknown>(store: Store, key: string) {
+  const [value, setValue] = useState<Value | undefined>(undefined)
   const unlistenerMap: Record<string, () => void> = {}
   
   const subscribe = (cb: () => void) => {
@@ -64,15 +67,24 @@ export function useTauriStoreValue<Value extends unknown>(store: Store, key: str
     // the unlisten function is put into the map, the unlisten function will never be called. The chances of this
     // actually happening are small enough that I'm fine letting this be.
     const id = crypto.randomUUID()
-    store.onKeyChange<Value>(key, cb).then(unlistener => unlistenerMap[id] = unlistener)
+    store.onKeyChange<Value>(key, (value) => {
+      setValue(value)
+      cb()
+    }).then(unlistener => unlistenerMap[id] = unlistener)
     return () => {
       unlistenerMap[id]?.()
       delete unlistenerMap[id]
     }
   }
   
-  const getSnapshot = async () => {
-    return await store.get<Value>(key)
+  const getSnapshot = () => {
+    // Previously, we directly called store.get in this function to get a snapshot. however, store.get seems to return 
+    // a new object each time it's called. this caused an [error]((https://react.dev/reference/react/useSyncExternalStore#im-getting-an-error-the-result-of-getsnapshot-should-be-cached)) 
+    // because getSnapshot needs to return a stable value each time it's called if the value hasn't changed. 
+    // 
+    // To address the issue, we cache the value in React state when we detect a change. React state will remain stable
+    // as long as the value is the same.
+    return value
   }
   
   return useSyncExternalStore(subscribe, getSnapshot)
@@ -81,21 +93,17 @@ export function useTauriStoreValue<Value extends unknown>(store: Store, key: str
 
 /**
  * Hook for reading and writing a value from a Tauri store reactively.
+ * @see {@link useTauriStoreValue} if you don't need to mutate the value.
  * 
  * @param store The Tauri store to read from.
  * @param key The key to read from the store.
  * @returns a tuple containing the value, and a function to set the value.
  */
 export function useMutableTauriStoreValue<Value>(store: Store, key: string) {
-  const valuePromise = useTauriStoreValue<Value>(store, key)
+  const value = useTauriStoreValue<Value>(store, key)
   
-  // `use` is kinda weird icl. u should read the docs: https://react.dev/reference/react/use. 
-  // tl;dr: it lets us use async values in react components by pausing a component's rendering
-  // until the promise resolves with a value. 
-  const unwrappedValue = use(valuePromise)
-  
-  const setValue = async (value: any) => {
-    await store.set(key, value)
+  const setValue = async (v: Value) => {
+    await store.set(key, v)
   }
-  return [unwrappedValue, setValue] as const
+  return [value, setValue] as const
 }
