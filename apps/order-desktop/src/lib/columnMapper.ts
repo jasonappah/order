@@ -22,9 +22,5 @@ export const REQUIRED_FIELDS: RequiredField[] = [
 ];
 
 
-export interface ColumnMapping {
-  [requiredFieldKey: string]: string | null; // Maps required field key to header name
-}
-
 
 

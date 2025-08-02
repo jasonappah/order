@@ -1,5 +1,5 @@
 import type { ParsedRow } from './clipboardParser';
-import type { ColumnMapping, RequiredField } from './columnMapper';
+import type { RequiredField } from './columnMapper';
 import { REQUIRED_FIELDS } from './columnMapper';
 
 export interface ValidationError {
@@ -22,7 +22,6 @@ export interface ValidationResult {
 
 /**
  * Validates parsed data using fixed column positions
- * No mapping required - uses fixed field order
  */
 export function validateData(rows: ParsedRow[]): ValidationResult {
   const result: ValidationResult = {

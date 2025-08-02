@@ -51,36 +51,6 @@ export function transformToOrderLineItems(rows: ParsedRow[]): OrderLineItem[] {
 }
 
 
-/**
- * Validates that the transformed data is suitable for PDF generation
- */
-export function validateOrderLineItems(items: OrderLineItem[]): { isValid: boolean; errors: string[] } {
-  const errors: string[] = [];
-
-  items.forEach((item, index) => {
-    if (!item.name) {
-      errors.push(`Item ${index + 1}: Missing name`);
-    }
-    if (!item.vendor) {
-      errors.push(`Item ${index + 1}: Missing vendor`);
-    }
-    if (item.quantity <= 0) {
-      errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
-    }
-    if (item.pricePerUnitCents < 0) {
-      errors.push(`Item ${index + 1}: Price cannot be negative`);
-    }
-    if (item.shippingAndHandlingCents < 0) {
-      errors.push(`Item ${index + 1}: Shipping cost cannot be negative`);
-    }
-  });
-
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-}
-
 
 // TODO: later, move this into the order-form package. tbh a lot of the stuff that cursor did should be in the order-form package.
 /**
@@ -89,7 +59,6 @@ export function validateOrderLineItems(items: OrderLineItem[]): { isValid: boole
  * @returns Cleaned URL without query parameters, or original URL if not an Amazon URL
  */
 export function cleanAmazonUrl(url: string): string {
-  // console.log('Cleaning Amazon URL:', url);
   if (!url || typeof url !== 'string') {
     return url;
   }
