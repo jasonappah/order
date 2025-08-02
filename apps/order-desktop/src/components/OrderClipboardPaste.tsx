@@ -9,8 +9,9 @@ import { generateOrderForms } from '../../../../packages/order-form/src/generate
 import type { GeneratedPDF } from '../../../../packages/order-form/src/types';
 import { readFile } from '@tauri-apps/plugin-fs';
 import { resolveResource } from '@tauri-apps/api/path';
+import type { PurchaseFormPDFResolver } from '../../../../packages/order-form/src/generate-purchase-form-pdf';
 
-const purchaseFormPdfResolverOnTauriApp = async () => {
+const purchaseFormPdfResolverOnTauriApp: PurchaseFormPDFResolver = async () => {
     const purchaseFormPdfBytes = await readFile(await resolveResource('resources/Jonsson School Student Organization Purchase Form.pdf'))
     return purchaseFormPdfBytes
   }

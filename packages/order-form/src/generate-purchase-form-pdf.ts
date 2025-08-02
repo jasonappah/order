@@ -44,7 +44,7 @@ type GeneratePurchaseFormPDFInput = {
  * @platform node
  * @returns The bytes of the purchase form PDF
  */
-export const resolvePurchaseFormPdfOnServer = async () => {
+export const resolvePurchaseFormPdfOnServer: PurchaseFormPDFResolver = async () => {
 	if (globalThis.window) {
 		throw new Error("Need to pass in a browser-compatible `purchaseFormPdfResolver` to `generatePurchaseFormPDF` to run in a browser. This resolver implementation will not work in a browser due to use of `node:fs/promises`.")
 	}
