@@ -108,7 +108,7 @@ export async function generateOrderForms(
 		]);
 
 		const merged = await mergePDFs([purchaseFormPdfDoc, orderListPdfDoc]);
-		mergedOrderForms.push({...orderList, pdfBuffer: await merged.save(), filename: generatePdfName(data.project, orderList.vendor, requestDate, data.orgName), itemCount: orderList.items.length});
+		mergedOrderForms.push({...orderList, pdfBuffer: await merged.save(), filename: generatePdfName(orderList.vendor, requestDate, data.orgName, data.project), itemCount: orderList.items.length});
 	}
 
 	return mergedOrderForms;

@@ -25,8 +25,8 @@ export const calculateOrderLineItemTotal = (item: OrderLineItem): number =>
 	item.pricePerUnitCents * item.quantity + (item.shippingAndHandlingCents || 0);
 
 export const generatePdfName = (
-	projectName: string,
 	vendor: string,
 	requestDate: Date,
-	orgName?: string,
-) => `${orgName ? `${orgName} ` : ""}${projectName} order at ${vendor} ${formatDate(requestDate).replace(/\//g, "-")}.pdf`;
+	orgName: string,
+	projectName?: string,
+) => `${orgName}${projectName ? ` ${projectName}` : ""} order at ${vendor} ${formatDate(requestDate).replace(/\//g, "-")}.pdf`
