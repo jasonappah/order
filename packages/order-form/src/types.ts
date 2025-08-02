@@ -11,7 +11,7 @@ export type OrderLineItem = {
 export type GeneratedPDF = {
     pdfBuffer: Uint8Array;
     vendor: string;
-    projectName: string;
+    projectName?: string;
     requestDate: Date;
     filename: string;
     itemCount: number;

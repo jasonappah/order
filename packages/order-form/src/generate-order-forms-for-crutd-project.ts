@@ -12,12 +12,14 @@ type GenerateOrderFormsInput = {
 	contactName: string;
 	contactEmail: string;
 	contactPhone: string;
-	project: string;
+	project?: string
 	orgName: string;
 	requestDate?: Date;
 };
 
-type GenerateOrderFormsForCRUTDProjectInput = Omit<GenerateOrderFormsInput, "justification" | "orgName"> & {
+type GenerateOrderFormsForCRUTDProjectInput = Omit<GenerateOrderFormsInput, "justification" | "orgName"> & GenerateCRUTDJustificationInput
+
+type GenerateCRUTDJustificationInput = {
 	project: CometProject;
 	justification?: {
 		replace: string;
@@ -41,12 +43,11 @@ const generalJustification = 'These parts are needed for continued research and 
 
 export type CometProject = keyof typeof cometProjects;
 
-export async function generateOrderFormsForCRUTDProject(
-	data: GenerateOrderFormsForCRUTDProjectInput,
-	purchaseFormPdfResolver: PurchaseFormPDFResolver,
+
+export function generateCRUTDJustification(
+	data: GenerateCRUTDJustificationInput,
 ) {
-	const projectName = cometProjects[data.project];
-	let justification = `These parts are needed for the ${projectName} team to continue research and development on their project.`;
+	let justification = `These parts are needed for the ${data.project} team to continue research and development on their project.`;
 	if (data.justification) {
 		if ("replace" in data.justification) {
 			justification = data.justification.replace;
@@ -54,6 +55,15 @@ export async function generateOrderFormsForCRUTDProject(
 			justification += `\n\n${data.justification.append}`;
 		}
 	}
+
+	return justification;
+}
+export async function generateOrderFormsForCRUTDProject(
+	data: GenerateOrderFormsForCRUTDProjectInput,
+	purchaseFormPdfResolver: PurchaseFormPDFResolver,
+) {
+	const projectName = cometProjects[data.project];
+	const justification = generateCRUTDJustification(data)
 
 
 	return generateOrderForms({
