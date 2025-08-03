@@ -5,7 +5,7 @@ export const StateKeys = {
   club: 'v1/club'
 } as const
 
-type StateKeys = typeof StateKeys[keyof typeof StateKeys]
+export type StateKeys = typeof StateKeys[keyof typeof StateKeys]
 
 export type States = {
   [StateKeys.user]: {

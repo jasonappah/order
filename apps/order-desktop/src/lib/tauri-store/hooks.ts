@@ -1,4 +1,4 @@
-import { load, Store } from '@tauri-apps/plugin-store';
+import { load, type Store } from '@tauri-apps/plugin-store';
 import { useEffect, useSyncExternalStore, useState } from 'react';
 import { seedData } from './appState';
 
@@ -18,14 +18,17 @@ type HookState = {
  * @param storePath The path to the Tauri store to load.
  * @returns The state of the store loading process.
  */
-export function useTauriStore(storePath = ORDER_STORE_NAME, seedWithDefaultData = false): HookState {
+export function useTauriStore(storePath = ORDER_STORE_NAME, seedWithDefaultData = false, clearData = false): HookState {
   const [state, setState] = useState<HookState>({status: 'loading'})
   
   useEffect(() => {
     async function run() {
       let store: Store
       try {
-        store = await load(storePath, { autoSave: false });
+        store = await load(storePath);
+        if (clearData) {
+          await store.clear()
+        }
         if (seedWithDefaultData) {
           for (const [key, value] of Object.entries(seedData)) {
             await store.set(key, value)
@@ -53,7 +56,7 @@ export function useTauriStore(storePath = ORDER_STORE_NAME, seedWithDefaultData 
  * @param key The key to read from the store.
  * @returns The value of the key in the store.
  */
-export function useTauriStoreValue<Value extends unknown>(store: Store, key: string) {
+export function useTauriStoreValue<Value>(store: Store, key: string) {
   const [value, setValue] = useState<Value | undefined>(undefined)
   const unlistenerMap: Record<string, () => void> = {}
   
@@ -70,7 +73,9 @@ export function useTauriStoreValue<Value extends unknown>(store: Store, key: str
     store.onKeyChange<Value>(key, (value) => {
       setValue(value)
       cb()
-    }).then(unlistener => unlistenerMap[id] = unlistener)
+    }).then(unlistener => {
+      unlistenerMap[id] = unlistener
+    })
     return () => {
       unlistenerMap[id]?.()
       delete unlistenerMap[id]

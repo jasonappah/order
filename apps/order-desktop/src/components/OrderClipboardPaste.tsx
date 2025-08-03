@@ -10,7 +10,7 @@ import type { GeneratedPDF } from '../../../../packages/order-form/src/types';
 import { readFile } from '@tauri-apps/plugin-fs';
 import { resolveResource } from '@tauri-apps/api/path';
 import type { PurchaseFormPDFResolver } from '../../../../packages/order-form/src/generate-purchase-form-pdf';
-import { StateKeys, useAppState } from '@/lib/tauri-store/appState';
+import type { StateKeys, States } from '@/lib/tauri-store/appState';
 
 const purchaseFormPdfResolverOnTauriApp: PurchaseFormPDFResolver = async () => {
     const purchaseFormPdfBytes = await readFile(await resolveResource('resources/Jonsson School Student Organization Purchase Form.pdf'))
@@ -20,9 +20,11 @@ const purchaseFormPdfResolverOnTauriApp: PurchaseFormPDFResolver = async () => {
 
 interface OrderClipboardPasteProps {
   className?: string;
+  user: States[typeof StateKeys.user];
+  club: States[typeof StateKeys.club];
 }
 
-export function OrderClipboardPaste({ className }: OrderClipboardPasteProps) {
+export function OrderClipboardPaste({ className, user, club }: OrderClipboardPasteProps) {
   const [pastedData, setPastedData] = useState<string>('');
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
@@ -32,18 +34,8 @@ export function OrderClipboardPaste({ className }: OrderClipboardPasteProps) {
   const [pdfGenerationErrors, setPdfGenerationErrors] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const user = useAppState(StateKeys.user)
-  const club = useAppState(StateKeys.club)
   
-  if (!user) {
-    // TODO: redirect to setup page
-    return <p>where user lol</p>
-  }
   
-  if (!club) {
-    // TODO: redirect to setup page
-    return <p>where club lol</p>
-  }
   
   const handleChange = (value: string) => {
     processData(value);
