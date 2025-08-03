@@ -1,6 +1,9 @@
 import { load, type Store } from '@tauri-apps/plugin-store';
 import { useEffect, useSyncExternalStore, useState } from 'react';
 import { seedData } from './appState';
+import loglevel from 'loglevel';
+
+const log = loglevel.getLogger('tauri-store')
 
 const ORDER_STORE_NAME = "order.json"
 
@@ -25,20 +28,27 @@ export function useTauriStore(storePath = ORDER_STORE_NAME, seedWithDefaultData 
     async function run() {
       let store: Store
       try {
+        log.info('Loading store', storePath)
         store = await load(storePath);
+        log.info('Loaded store', store)
         if (clearData) {
+          log.trace("Clearing store")
           await store.clear()
+          log.trace('Cleared store')
         }
         if (seedWithDefaultData) {
           for (const [key, value] of Object.entries(seedData)) {
+            log.trace('Setting key', key, value)
             await store.set(key, value)
+            log.trace('Set key', key, value)
           }
         }
       } catch (e) {
-        console.error(e)
+        log.error('Error loading store', e)
         setState({ status: 'error' })
         return
       }
+      log.info('Setting state to ready', store)
       setState({ status: 'ready', store})
     }
     
@@ -74,11 +84,19 @@ export function useTauriStoreValue<Value>(store: Store, key: string) {
       setValue(value)
       cb()
     }).then(unlistener => {
+      log.trace('Key change listener added, tracking unlistener', id)
       unlistenerMap[id] = unlistener
     })
     return () => {
-      unlistenerMap[id]?.()
-      delete unlistenerMap[id]
+      log.trace('Key change listener removed, untracking unlistener', id)
+      const unlistener = unlistenerMap[id]
+      if (unlistener) {
+        log.trace('Calling unlistener', id)
+        unlistener()
+        delete unlistenerMap[id]
+      } else {
+        log.warn('Key change listener removed, but unlistener not found', id)
+      }
     }
   }
   
@@ -108,7 +126,9 @@ export function useMutableTauriStoreValue<Value>(store: Store, key: string) {
   const value = useTauriStoreValue<Value>(store, key)
   
   const setValue = async (v: Value) => {
+    log.trace('Setting value', key, v)
     await store.set(key, v)
+    log.trace('Set value', key, v)
   }
   return [value, setValue] as const
 }
