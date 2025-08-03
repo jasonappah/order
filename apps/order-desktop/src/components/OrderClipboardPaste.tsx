@@ -36,12 +36,12 @@ export function OrderClipboardPaste({ className }: OrderClipboardPasteProps) {
   const club = useAppState(StateKeys.club)
   
   if (!user) {
-    // TODO: redirect to user setup page
+    // TODO: redirect to setup page
     return <p>where user lol</p>
   }
   
   if (!club) {
-    // TODO: redirect to club setup page
+    // TODO: redirect to setup page
     return <p>where club lol</p>
   }
   

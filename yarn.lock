@@ -993,10 +993,27 @@
     "@tailwindcss/oxide" "4.1.5"
     tailwindcss "4.1.5"
 
+"@tanstack/form-core@1.15.1":
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/form-core/-/form-core-1.15.1.tgz#cef05032c299a764e347443fdffff7a2d0f98a52"
+  integrity sha512-Z8+29KhaGko5VSmnt0iUpB7wlFqOsLCSL3EhC2F/xm/qMq6BzR0yJVpeunN8pwfnlVnkUAO7I8yxT9VS/7ncBA==
+  dependencies:
+    "@tanstack/store" "^0.7.2"
+
 "@tanstack/history@1.115.0":
   version "1.115.0"
   resolved "https://registry.yarnpkg.com/@tanstack/history/-/history-1.115.0.tgz#ded6595eaed4abd94127b539e51fe6de95f65ff8"
   integrity sha512-K7JJNrRVvyjAVnbXOH2XLRhFXDkeP54Kt2P4FR1Kl2KDGlIbkua5VqZQD2rot3qaDrpufyUa63nuLai1kOLTsQ==
+
+"@tanstack/react-form@^1.15.2":
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-form/-/react-form-1.15.2.tgz#911314a58bd45e219f8e21bb6cf20d14112bcd96"
+  integrity sha512-mNW3xixPM99jIuU0moxatZ97B0J8YWlM9ROXLlyuEA4QabLjw7dtWpd1Rq3HVftNbAOneFxb/LwoNywb9pabXw==
+  dependencies:
+    "@tanstack/form-core" "1.15.1"
+    "@tanstack/react-store" "^0.7.3"
+    decode-formdata "^0.9.0"
+    devalue "^5.1.1"
 
 "@tanstack/react-router-devtools@^1.114.3":
   version "1.120.2"
@@ -1025,6 +1042,14 @@
   dependencies:
     "@tanstack/store" "0.7.0"
     use-sync-external-store "^1.4.0"
+
+"@tanstack/react-store@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-store/-/react-store-0.7.3.tgz#567d3983e654b7e5cc83fbc8a20088a319305ce0"
+  integrity sha512-3Dnqtbw9P2P0gw8uUM8WP2fFfg8XMDSZCTsywRPZe/XqqYW8PGkXKZTvP0AHkE4mpqP9Y43GpOg9vwO44azu6Q==
+  dependencies:
+    "@tanstack/store" "0.7.2"
+    use-sync-external-store "^1.5.0"
 
 "@tanstack/router-core@1.119.0", "@tanstack/router-core@^1.119.0":
   version "1.119.0"
@@ -1090,6 +1115,11 @@
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@tanstack/store/-/store-0.7.0.tgz#afef29b06c6b592e93181cee9baa62fe77454459"
   integrity sha512-CNIhdoUsmD2NolYuaIs8VfWM467RK6oIBAW4nPEKZhg1smZ+/CwtCdpURgp7nxSqOaV9oKkzdWD80+bC66F/Jg==
+
+"@tanstack/store@0.7.2", "@tanstack/store@^0.7.2":
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/store/-/store-0.7.2.tgz#2e04dac17f7d904539eeb797d8ba0058cee4edf7"
+  integrity sha512-RP80Z30BYiPX2Pyo0Nyw4s1SJFH2jyM6f9i3HfX4pA+gm5jsnYryscdq2aIQLnL4TaGuQMO+zXmN9nh1Qck+Pg==
 
 "@tanstack/virtual-file-routes@^1.115.0":
   version "1.115.0"
@@ -2255,6 +2285,11 @@ decimal.js@^10.5.0:
   resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.5.0.tgz#0f371c7cf6c4898ce0afb09836db73cd82010f22"
   integrity sha512-8vDa8Qxvr/+d94hSh5P3IJwI5t8/c0KsMp+g8bNw9cY2icONa5aPfvKeieW1WlG0WQYwwhJ7mjui2xtiePQSXw==
 
+decode-formdata@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/decode-formdata/-/decode-formdata-0.9.0.tgz#fa9c0c0ea0a279d6d1ea825c156534d2d5fa6721"
+  integrity sha512-q5uwOjR3Um5YD+ZWPOF/1sGHVW9A5rCrRwITQChRXlmPkxDFBqCm4jNTIVdGHNH9OnR+V9MoZVgRhsFb+ARbUw==
+
 deep-eql@^5.0.1:
   version "5.0.2"
   resolved "https://registry.yarnpkg.com/deep-eql/-/deep-eql-5.0.2.tgz#4b756d8d770a9257300825d52a2c2cff99c3a341"
@@ -2337,6 +2372,11 @@ detect-node-es@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/detect-node-es/-/detect-node-es-1.1.0.tgz#163acdf643330caa0b4cd7c21e7ee7755d6fa493"
   integrity sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==
+
+devalue@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/devalue/-/devalue-5.1.1.tgz#a71887ac0f354652851752654e4bd435a53891ae"
+  integrity sha512-maua5KUiapvEwiEAe+XnlZ3Rh0GD+qI1J/nb9vrJc3muPXvcF/8gXYTWF76+5DAqHyDUtOIImEuo0YKE9mshVw==
 
 dfa@^1.2.0:
   version "1.2.0"
@@ -5789,7 +5829,7 @@ use-sidecar@^1.1.3:
     detect-node-es "^1.1.0"
     tslib "^2.0.0"
 
-use-sync-external-store@^1.4.0:
+use-sync-external-store@^1.4.0, use-sync-external-store@^1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.5.0.tgz#55122e2a3edd2a6c106174c27485e0fd59bcfca0"
   integrity sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==
