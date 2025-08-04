@@ -14,7 +14,7 @@ import {
 } from '@mantine/core'
 import { AlertCircle, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
-import { useAppState, useMutableAppState, StateKeys, type States } from '../lib/tauri-store/appState'
+import { useMutableAppState, StateKeys } from '../lib/tauri-store/appState'
 
 export const Route = createFileRoute('/setup')({
   component: SetupPage,
@@ -25,16 +25,18 @@ function SetupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   
-  const [, setUserData] = useMutableAppState(StateKeys.user)
-  const [, setClubData] = useMutableAppState(StateKeys.club)
+  const [userData, setUserData] = useMutableAppState(StateKeys.user)
+  const [clubData, setClubData] = useMutableAppState(StateKeys.club)
+  
+  const hasExistingData = userData && clubData
   
   const form = useForm({
     defaultValues: {
-      userName: '',
-      userEmail: '',
-      userPhone: '',
-      clubType: 'comet-robotics' as 'comet-robotics' | 'other',
-      clubName: '',
+      userName: userData?.name || '',
+      userEmail: userData?.email || '',
+      userPhone: userData?.phone || '',
+      clubType: (clubData?.type || 'comet-robotics') as 'comet-robotics' | 'other',
+      clubName: (clubData && clubData?.type === 'other') ? clubData.name : '',
     },
     onSubmit: async ({ value }) => {
       setIsSubmitting(true)
@@ -78,7 +80,9 @@ function SetupPage() {
       <Container size="sm" className="py-16">
         <Paper p="xl" withBorder radius="md" className="text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <Title order={2} className="text-green-700 mb-2">Setup Complete!</Title>
+          <Title order={2} className="text-green-700 mb-2">
+            {hasExistingData ? 'Information Updated!' : 'Setup Complete!'}
+          </Title>
           <Text c="dimmed">Redirecting you to the main application...</Text>
         </Paper>
       </Container>
@@ -88,9 +92,14 @@ function SetupPage() {
   return (
     <Container size="sm" className="py-8">
       <Paper p="xl" withBorder radius="md">
-        <Title order={1} className="text-center mb-2">Welcome!</Title>
+        <Title order={1} className="text-center mb-2">
+          {hasExistingData ? 'Edit Your Information' : 'Welcome!'}
+        </Title>
         <Text c="dimmed" className="text-center mb-8">
-          Let's get your account set up. We need some basic information to get started.
+          {hasExistingData 
+            ? 'Update your personal and organization information below.'
+            : "Let's get your account set up. We need some basic information to get started."
+          }
         </Text>
         
         <form
@@ -234,7 +243,7 @@ function SetupPage() {
                     loading={isSubmitting}
                     disabled={!canSubmit || isSubmitting}
                   >
-                    Complete Setup
+                    {hasExistingData ? 'Update Information' : 'Complete Setup'}
                   </Button>
                 </Group>
               )}
@@ -248,7 +257,10 @@ function SetupPage() {
           className="mt-6"
           variant="light"
         >
-          This information will be stored locally on your device and used to populate order forms.
+          {hasExistingData 
+            ? 'Your information is stored locally on your device and used to populate order forms. You can update it anytime from this page.'
+            : 'This information will be stored locally on your device and used to populate order forms.'
+          }
         </Alert>
       </Paper>
     </Container>
