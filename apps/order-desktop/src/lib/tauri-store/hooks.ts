@@ -1,18 +1,22 @@
 import { load, type Store } from '@tauri-apps/plugin-store';
 import { useEffect, useSyncExternalStore, useState } from 'react';
 import { seedData } from './appState';
-import {debug, info, warn, error} from "@tauri-apps/plugin-log"
-import {isEqual} from 'lodash';
+import { debug, info, error } from "@tauri-apps/plugin-log"
+import { isEqual } from 'lodash';
 
 
 const ORDER_STORE_NAME = "order.json"
 
+export type ReadyState = { 
+  status: 'ready',
+  store: Store,
+  eventTarget: EventTarget,
+  valueCache: Map<string, unknown>
+}
+
 type HookState = {
   status: 'loading' | 'error'
-} | { 
-  status: 'ready',
-  store: Store
-}
+} | ReadyState
 
 
 /**
@@ -36,6 +40,10 @@ export function useTauriStore(storePath = ORDER_STORE_NAME, seedWithDefaultData 
           await store.clear()
           debug('Cleared store')
         }
+
+        const valueCache = new Map<string, any>();
+        const eventTarget = new EventTarget();
+
         if (seedWithDefaultData) {
           for (const [key, value] of Object.entries(seedData)) {
             debug(`Setting key: ${key}, value: ${JSON.stringify(value)}`)
@@ -43,17 +51,32 @@ export function useTauriStore(storePath = ORDER_STORE_NAME, seedWithDefaultData 
             debug(`Set key: ${key}, value: ${JSON.stringify(value)}`)
           }
         }
+        
+        const entries = await store.entries()
+        for (const [key, value] of entries) {
+          valueCache.set(key, value)
+        }
+
+        await store.onChange((key, value) => {
+          const oldValue = valueCache.get(key);
+          if (!isEqual(oldValue, value)) {
+            valueCache.set(key, value);
+            eventTarget.dispatchEvent(new CustomEvent('store-change', { detail: { key } }));
+          }
+        })
+
+        info('Setting state to ready')
+        setState({ status: 'ready', store, eventTarget, valueCache})
+
       } catch (e) {
         error(`Error loading store: ${e}`)
         setState({ status: 'error' })
         return
       }
-      info('Setting state to ready')
-      setState({ status: 'ready', store})
     }
     
     run()
-  })
+  }, [storePath, seedWithDefaultData, clearData])
   
   return state
 }
@@ -66,73 +89,20 @@ export function useTauriStore(storePath = ORDER_STORE_NAME, seedWithDefaultData 
  * @param key The key to read from the store.
  * @returns The value of the key in the store.
  */
-export function useTauriStoreValue<Value>(store: Store, key: string) {
-  let value: Value | undefined = undefined;
-  const [unlistenerMap, setUnlistenerMap] = useState<Record<string, () => void>>({})
-  const [callbackMap, setCallbackMap] = useState<Record<string, () => void>>({})
-
-  const runCallbacks = () => {
-    for (const callback of Object.values(callbackMap)) {
-      callback()
-    }
-  }
-
-  const subscribe = (cb: () => void) => {
-    // This subscribe function needs to be synchronous, but adding the event listener on the Store is a async op, 
-    // so had to perform some slight shenanigans to make this work. Since we cannot wait for the unlisten function
-    // to be resolved, we let the listener creation run its course in the background, and add the unlisten function
-    // to the map whenever it is ready (which could be after this function returns).
-    // 
-    // Technically this has the possibility for a race condition. If the unsubscribe function gets called before 
-    // the unlisten function is put into the map, the unlisten function will never be called. The chances of this
-    // actually happening are small enough that I'm fine letting this be.
-    const id = crypto.randomUUID()
-    store.onKeyChange<Value>(key, (newValue) => {
-      const currentValue = value;
-      if (!isEqual(currentValue, newValue)) {
-        value = newValue;
-        debug(`running callbacks since value changed: ${JSON.stringify(value)}`)
-        runCallbacks()
+export function useTauriStoreValue<Value>(eventTarget: EventTarget, valueCache: Map<string, any>, key: string) {
+  const subscribe = (callback: () => void) => {
+    const listener = (evt: Event) => {
+      const { key: changedKey } = (evt as CustomEvent).detail;
+      if (changedKey === key) {
+        callback();
       }
-    }).then(unlistener => {
-      debug(`Key change listener added, tracking unlistener: ${id}`)
-      setUnlistenerMap(prev => ({ ...prev, [id]: unlistener }))
-    })
-
-    setCallbackMap(prev => ({ ...prev, [id]: cb }))
-    return () => {
-      debug(`Key change listener removed, untracking unlistener: ${id}`)
-      setUnlistenerMap(prev => {
-        const unlistener = prev[id]
-        if (unlistener) {
-          debug(`Calling unlistener: ${id}`)
-          unlistener()
-          const { [id]: removed, ...rest } = prev
-          return rest
-        }
-        warn(`Key change listener removed, but unlistener not found: ${id}`)
-        return prev
-      })
-
-      setCallbackMap(prev => {
-        if (prev[id]) {
-          debug(`removing callback: ${id}`)
-          const { [id]: removed, ...rest } = prev
-          return rest
-        }
-        warn(`Key change listener removed, but callback not found: ${id}`)
-        return prev
-      })
     }
+    eventTarget.addEventListener('store-change', listener);
+    return () => eventTarget.removeEventListener('store-change', listener);
   }
   
   const getSnapshot = () => {
-    // Previously, we directly called store.get in this function to get a snapshot. however, store.get seems to return 
-    // a new object each time it's called. this caused an [error]((https://react.dev/reference/react/useSyncExternalStore#im-getting-an-error-the-result-of-getsnapshot-should-be-cached)) 
-    // because getSnapshot needs to return a stable value each time it's called if the value hasn't changed. 
-    // 
-    // To address the issue, we cache the value in a JS constant when we detect a change. The constant shouldn't get updated if there is no change to the value
-    return value
+    return valueCache.get(key) as Value
   }
   
   return useSyncExternalStore(subscribe, getSnapshot)
@@ -147,8 +117,8 @@ export function useTauriStoreValue<Value>(store: Store, key: string) {
  * @param key The key to read from the store.
  * @returns a tuple containing the value, and a function to set the value.
  */
-export function useMutableTauriStoreValue<Value>(store: Store, key: string) {
-  const value = useTauriStoreValue<Value>(store, key)
+export function useMutableTauriStoreValue<Value>(store: Store, eventTarget: EventTarget, valueCache: Map<string, any>, key: string) {
+  const value = useTauriStoreValue<Value>(eventTarget, valueCache, key)
   
   const setValue = async (v: Value) => {
     debug(`Setting value: ${key}, value: ${JSON.stringify(v)}`)

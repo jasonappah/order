@@ -1,8 +1,7 @@
-import type { Store } from '@tauri-apps/plugin-store';
 import { createContext, useContext } from 'react';
-import { useMutableTauriStoreValue, useTauriStoreValue } from './hooks';
+import { useMutableTauriStoreValue, useTauriStoreValue, type ReadyState } from './hooks';
 
-export const OrderStoreContext = createContext<Store | undefined>(undefined);
+export const OrderStoreContext = createContext<ReadyState | undefined>(undefined);
 
 const useOrderStoreContext = () => {
   const contextValue = useContext(OrderStoreContext)
@@ -24,8 +23,8 @@ const useOrderStoreContext = () => {
  * @returns a tuple containing the value, and a function to set the value.
  */
 export function useMutableOrderStoreValue<Value>(key: string) {
-  const store = useOrderStoreContext();
-  return useMutableTauriStoreValue<Value>(store, key)
+  const { store, eventTarget, valueCache } = useOrderStoreContext();
+  return useMutableTauriStoreValue<Value>(store, eventTarget, valueCache, key)
 }
 
 /**
@@ -36,7 +35,7 @@ export function useMutableOrderStoreValue<Value>(key: string) {
  * @returns the value
  */
 export function useOrderStoreValue<Value>(key: string) {
-  const store = useOrderStoreContext();
-  return useTauriStoreValue<Value>(store, key)
+  const { eventTarget, valueCache } = useOrderStoreContext();
+  return useTauriStoreValue<Value>(eventTarget, valueCache, key)
 }
  

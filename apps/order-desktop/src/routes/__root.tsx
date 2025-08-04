@@ -15,7 +15,7 @@ export const Route = createRootRoute({
         return <p>Loading...</p>
       case 'ready':
         return (
-          <OrderStoreContext.Provider value={storeState.store}>
+          <OrderStoreContext.Provider value={storeState}>
             <Header />
             <Outlet />
             <TanStackRouterDevtools />
