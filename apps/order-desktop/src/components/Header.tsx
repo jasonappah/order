@@ -10,6 +10,9 @@ export default function Header() {
         <div className="px-2">
           <Link to="/">Home</Link>
         </div>
+        <div className="px-2">
+          <Link to="/setup">Setup</Link>
+        </div>
       </nav>
     </header>
   )
