@@ -7,11 +7,15 @@ pub fn run() {
         .plugin(tauri_plugin_persisted_scope::init())
         .setup(|app| {
             if cfg!(debug_assertions) {
-                app.handle().plugin(
-                    tauri_plugin_log::Builder::default()
+                app.handle()
+                    .plugin(tauri_plugin_devtools::init())?;
+            } else {
+                app.handle()
+                    .plugin(
+                        tauri_plugin_log::Builder::default()
                         .level(log::LevelFilter::Info)
-                        .build(),
-                )?;
+                        .build()
+                    )?;
             }
             Ok(())
         })

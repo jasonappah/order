@@ -4,11 +4,6 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import Header from '../components/Header'
 import { OrderStoreContext } from '@/lib/tauri-store/context'
 import { useTauriStore } from '@/lib/tauri-store/hooks'
-import loglevel from 'loglevel'
-
-if (import.meta.env.DEV) {
-  loglevel.setLevel('trace')
-}
 
 export const Route = createRootRoute({
   component: function() {
