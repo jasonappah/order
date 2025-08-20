@@ -12,10 +12,12 @@ export const calculateTotalCents = (items: OrderLineItem[]) =>
 export const groupItemsByVendor = (items: OrderLineItem[]) =>
 	items.reduce(
 		(groupedItems, item) => {
-			if (!groupedItems[item.vendor]) {
-				groupedItems[item.vendor] = [];
+			if (groupedItems[item.vendor] === undefined) {
+				groupedItems[item.vendor] = [item];
+			} else {
+				groupedItems[item.vendor]?.push(item);
 			}
-			groupedItems[item.vendor]?.push(item);
+				
 			return groupedItems;
 		},
 		{} as Record<string, OrderLineItem[]>,

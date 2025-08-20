@@ -4,10 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5173",
-    "start": "vite --port 5173",
-    "build": "vite build && tsc",
-    "serve": "vite preview",
+    "dev": "yarn app-dev",
+    "build": "yarn app-build",
+    "check-types": "tsc --noEmit",
     "test": "vitest run",
     "app-dev": "tauri dev",
     "app-build": "tauri build"

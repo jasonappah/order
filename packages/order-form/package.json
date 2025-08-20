@@ -7,6 +7,7 @@
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
+    "sample": "yarn dlx tsx scripts/sample.ts",
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
