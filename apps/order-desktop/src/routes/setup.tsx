@@ -128,7 +128,7 @@ function SetupPage() {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
-                    error={field.state.meta.touchedErrors}
+                    error={field.state.meta.isTouched && field.state.meta.errors}
                     className="mb-4"
                   />
                 )}
@@ -155,7 +155,7 @@ function SetupPage() {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
-                    error={field.state.meta.touchedErrors}
+                    error={field.state.meta.isTouched && field.state.meta.errors}
                     className="mb-4"
                   />
                 )}
@@ -176,7 +176,7 @@ function SetupPage() {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
-                    error={field.state.meta.touchedErrors}
+                    error={field.state.meta.isTouched && field.state.meta.errors}
                   />
                 )}
               </form.Field>
@@ -195,41 +195,53 @@ function SetupPage() {
                     onChange={(value) => field.handleChange(value as 'comet-robotics' | 'other')}
                     data={[
                       { value: 'comet-robotics', label: 'Comet Robotics' },
-                      { value: 'other', label: 'Other Organization' },
+                      { value: 'other', label: 'Other Organization...' },
                     ]}
                     className="mb-4"
                   />
                 )}
               </form.Field>
 
-              <form.Field
-                name="clubName"
-                validators={{
-                  onChange: ({ value, fieldApi }) => {
-                    const clubType = fieldApi.form.getFieldValue('clubType')
-                    if (clubType === 'other' && !value) {
-                      return 'Organization name is required'
-                    }
-                    return undefined
-                  },
-                }}
+              <form.Subscribe
+                selector={(state) => [state.values.clubType]}
               >
-                {(field) => {
-                  const clubType = form.getFieldValue('clubType')
-                  return (
-                    <TextInput
-                      label="Organization Name"
-                      placeholder="Enter your organization name"
-                      required={clubType === 'other'}
-                      disabled={clubType === 'comet-robotics'}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                      error={field.state.meta.touchedErrors}
-                    />
-                  )
-                }}
-              </form.Field>
+                  {([clubType]) => {
+                    if (clubType !== 'comet-robotics') {
+                      return <form.Field
+                        name="clubName"
+                        validators={{
+                          onChange: ({ value, fieldApi }) => {
+                            const clubType = fieldApi.form.getFieldValue('clubType')
+                            if (clubType === 'other' && !value) {
+                              return 'Organization name is required'
+                            }
+                            return undefined
+                          },
+                        }}
+                      >
+                        {(field) => {
+                          return (
+                            <TextInput
+                              label="Organization Name"
+                              placeholder="Enter your organization name"
+                              required={true}
+                              disabled={false}
+                              value={field.state.value}
+                              onChange={(e) => field.handleChange(e.target.value)}
+                              onBlur={field.handleBlur}
+                              error={field.state.meta.isTouched && field.state.meta.errors}
+                            />
+                          )
+                        }}
+                      </form.Field>
+                    }
+                    return null
+                  }}
+              </form.Subscribe>
+              
+              
+              
+              
             </div>
 
             <form.Subscribe
