@@ -10,12 +10,17 @@ import {
   Alert,
   Badge,
   Paper,
+  Select,
+  Textarea,
 } from "@mantine/core";
 import { validateData, type ValidationResult } from "../lib/dataValidator";
 import { REQUIRED_FIELDS } from "../lib/columnMapper";
 import { transformToOrderLineItems } from "../lib/dataTransformer";
 import { downloadAllPDFs, previewPDFGeneration } from "../lib/pdfGenerator";
-import { generateCRUTDJustification } from "../../../../packages/order-form/src/generate-order-forms-for-crutd-project";
+import {
+  generateCRUTDJustification,
+  type CometProject,
+} from "../../../../packages/order-form/src/generate-order-forms-for-crutd-project";
 import { generateOrderForms } from "../../../../packages/order-form/src/generate-order-forms";
 import type { GeneratedPDF } from "../../../../packages/order-form/src/types";
 import { readFile } from "@tauri-apps/plugin-fs";
@@ -57,6 +62,9 @@ export function OrderDataEdit({
   const [isGeneratingPDFs, setIsGeneratingPDFs] = useState(false);
   const [generatedPDFs, setGeneratedPDFs] = useState<GeneratedPDF[]>([]);
   const [pdfGenerationErrors, setPdfGenerationErrors] = useState<string[]>([]);
+  const [selectedProject, setSelectedProject] =
+    useState<CometProject>("General");
+  const [justificationText, setJustificationText] = useState<string>("");
 
   // Initialize editable data when parseResult changes
   useEffect(() => {
@@ -100,10 +108,13 @@ export function OrderDataEdit({
           justification:
             club.type === "comet-robotics"
               ? generateCRUTDJustification({
-                  // TODO: render project selector component when club is comet robotics. Render text input for justification always
-                  project: "ChessBots",
+                  project: selectedProject,
+                  justification: {
+                    append: justificationText
+                  }
+                  
                 })
-              : "Hi lol",
+              : justificationText || undefined,
         },
         purchaseFormPdfResolverOnTauriApp,
       );
@@ -144,6 +155,43 @@ export function OrderDataEdit({
         <Button onClick={onClear} mb="md">
           Clear paste
         </Button>
+
+        {club.type === "comet-robotics" && (
+          <Select
+            label="Project"
+            description="Select the Comet Robotics project this order is for"
+            value={selectedProject}
+            onChange={(value) => setSelectedProject(value as CometProject)}
+            data={[
+              { value: "General", label: "General" },
+              { value: "Marketing", label: "Marketing" },
+              {
+                value: "Full Combat",
+                label: "Full Combat Robots (Ants, Beetles, etc.)",
+              },
+              { value: "Plant", label: "Plant Combat Robots" },
+              { value: "Sumo", label: "SumoBots" },
+              { value: "VexU", label: "VEX U" },
+              { value: "ChessBots", label: "ChessBots" },
+              { value: "SRP", label: "Solis Rover Project" },
+            ]}
+            mb="md"
+            required
+          />
+        )}
+
+        
+        <Textarea
+          label="Justification"
+          description="Provide a justification for this order"
+          placeholder="Explain why these items are needed..."
+          value={justificationText}
+          onChange={(event) =>
+            setJustificationText(event.currentTarget.value)
+          }
+          mb="md"
+          minRows={3}
+        />
         <ScrollArea>
           <Table striped highlightOnHover>
             <Table.Thead>
