@@ -269,6 +269,24 @@ export function OrderDataEdit({
             )}
           </Paper>
         )}
+        
+        {validationResult && validationResult.warnings.length > 0 && (
+          <Paper p="sm" mt="md" bg="yellow.0" withBorder>
+            <Text size="sm" fw={600} c="orange" mb="xs">
+              Validation Warnings:
+            </Text>
+            {validationResult.warnings.slice(0, 5).map((warning) => (
+              <Text key={warning.id} size="xs" c="orange">
+                • Row {warning.row}: {warning.error}
+              </Text>
+            ))}
+            {validationResult.warnings.length > 5 && (
+              <Text size="xs" c="dimmed">
+                ... and {validationResult.warnings.length - 5} more warnings
+              </Text>
+            )}
+          </Paper>
+        )}
 
         {pdfPreview && (
           <Paper p="sm" mt="md" bg="blue.0" withBorder>
