@@ -1,6 +1,7 @@
 import { type Browser, chromium, type Page } from 'playwright';
 import { resolveFinalConfig, type GenerateOrderFormsInput } from '../../order-form/src/generate-order-forms';
 import { calculateOrderLineItemTotal, formatCentsAsDollarString, groupItemsByVendor } from '../../order-form/src/utilities';
+import { generateRemainingItemsExcel } from './generate-excel';
 
 const newInputs = {
     netID: 'dal000000',
@@ -234,7 +235,8 @@ const completeForm = async ({ page }: { page: Page }) => {
     const remainingItems = itemsSortedByVendor.slice(ORDER_ITEM_LIMIT);
     for (let itemIndex = 0; itemIndex < truncatedItems.length; itemIndex++) {
         const displayIndex = itemIndex + 1
-        const item = truncatedItems[itemIndex]!
+        const item = truncatedItems[itemIndex]
+        if (!item) continue
 
         const nameWithNotes = item.notes ? `${item.name} [NOTE: ${item.notes}]` : item.name;
         await page.getByRole('textbox', { name: `Item ${displayIndex} Name of Item` }).fill(nameWithNotes);
@@ -249,8 +251,11 @@ const completeForm = async ({ page }: { page: Page }) => {
     await clickNext(page);
 
     if (remainingItems.length > 0) {
-        // TODO: generate the excel spreadsheet if needed
-        await page.getByRole('button', { name: 'Drop files or click here to' }).setInputFiles('jcef_42253.log');
+        const spreadsheet = await generateRemainingItemsExcel({
+            items: remainingItems,
+            orgName: testData.orgName,
+        })
+        await page.getByRole('button', { name: 'Drop files or click here to' }).setInputFiles(spreadsheet);
     }
     await clickNext(page);
 
