@@ -43,10 +43,6 @@ export type QualtricsOrderPayload = {
 
 export type QualtricsOrderSuccess = {
   status: 'success';
-  vendorCount: number;
-  itemsCount: number;
-  truncatedItemsCount: number;
-  remainingItemsUploaded: boolean;
 };
 
 export type QualtricsOrderError = {
