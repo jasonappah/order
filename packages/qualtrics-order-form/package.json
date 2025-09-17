@@ -8,7 +8,8 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "sample": "yarn dlx tsx src/main.ts"
+    "sample": "yarn dlx tsx src/main.ts",
+    "build:sidecar": "bun build src/main.ts --compile --outfile dist/qualtrics-sidecar"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",

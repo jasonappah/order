@@ -14,6 +14,10 @@
     "fs:allow-create",
     "fs:allow-write-file",
     "store:default",
-    "log:default"
+    "log:default",
+    "shell:default",
+    "shell:allow-sidecar",
+    "shell:allow-open",
+    "shell:allow-command"
   ]
 }

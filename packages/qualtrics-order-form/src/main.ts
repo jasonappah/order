@@ -2,202 +2,7 @@ import { type Browser, chromium, type Page } from 'playwright';
 import { resolveFinalConfig, type GenerateOrderFormsInput } from '../../order-form/src/generate-order-forms';
 import { calculateOrderLineItemTotal, formatCentsAsDollarString, groupItemsByVendor } from '../../order-form/src/utilities';
 import { generateRemainingItemsExcel } from './generate-excel';
-
-const newInputs = {
-    netID: 'dal000000',
-    advisor: {
-      name: 'Our Advisor',
-      email: 'our.advisor@utdallas.edu',
-    },
-    eventName: 'Event Name',
-    eventDate: '09/17/2025',
-    costCenter: {
-        type: 'Other',
-        value: 'Gift cost center XYZ'
-    } satisfies CostCenter
-  }
-
-  type CostCenter = {
-    type: 'Student Organization Cost Center' | 'Jonsson School Student Council funding'
-  } | {
-    type: 'Other'
-    value: string
-  }
-
-const testData: GenerateOrderFormsInput = {
-    items: [
-        {
-            name: "Antenna",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/antenna",
-            pricePerUnitCents: 1023,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "Intel Realsense D435i",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/intel-realsense-d435i",
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: 'Servo',
-            vendor: 'Amazon',
-            quantity: 1,
-            url: 'https://www.amazon.com/dp/B0BQJYJYJY',
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "12v Boost Converter",
-            notes: "When ordering, please select the color option '12V(no Pin)'. Thanks!",
-            vendor: "AliExpress",
-            quantity: 40,
-            url: "https://www.aliexpress.us/item/2251832713406135.html",
-            pricePerUnitCents: 308,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "Antenna",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/antenna",
-            pricePerUnitCents: 1023,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "Intel Realsense D435i",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/intel-realsense-d435i",
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: 'Servo',
-            vendor: 'Amazon',
-            quantity: 1,
-            url: 'https://www.amazon.com/dp/B0BQJYJYJY',
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "12v Boost Converter",
-            notes: "When ordering, please select the color option '12V(no Pin)'. Thanks!",
-            vendor: "AliExpress",
-            quantity: 40,
-            url: "https://www.aliexpress.us/item/2251832713406135.html",
-            pricePerUnitCents: 308,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "Antenna",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/antenna",
-            pricePerUnitCents: 1023,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "Intel Realsense D435i",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/intel-realsense-d435i",
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: 'Servo',
-            vendor: 'Amazon',
-            quantity: 1,
-            url: 'https://www.amazon.com/dp/B0BQJYJYJY',
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "12v Boost Converter",
-            notes: "When ordering, please select the color option '12V(no Pin)'. Thanks!",
-            vendor: "AliExpress",
-            quantity: 40,
-            url: "https://www.aliexpress.us/item/2251832713406135.html",
-            pricePerUnitCents: 308,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "Antenna",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/antenna",
-            pricePerUnitCents: 1023,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "Intel Realsense D435i",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/intel-realsense-d435i",
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: 'Servo',
-            vendor: 'Amazon',
-            quantity: 1,
-            url: 'https://www.amazon.com/dp/B0BQJYJYJY',
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "12v Boost Converter",
-            notes: "When ordering, please select the color option '12V(no Pin)'. Thanks!",
-            vendor: "AliExpress",
-            quantity: 40,
-            url: "https://www.aliexpress.us/item/2251832713406135.html",
-            pricePerUnitCents: 308,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "Antenna",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/antenna",
-            pricePerUnitCents: 1023,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "Intel Realsense D435i",
-            vendor: "Digikey",
-            quantity: 1,
-            url: "https://www.digikey.com/en/products/detail/intel-realsense-d435i",
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: 'Servo',
-            vendor: 'Amazon',
-            quantity: 1,
-            url: 'https://www.amazon.com/dp/B0BQJYJYJY',
-            pricePerUnitCents: 1000,
-            shippingAndHandlingCents: 0
-        },
-        {
-            name: "12v Boost Converter",
-            notes: "When ordering, please select the color option '12V(no Pin)'. Thanks!",
-            vendor: "AliExpress",
-            quantity: 40,
-            url: "https://www.aliexpress.us/item/2251832713406135.html",
-            pricePerUnitCents: 308,
-            shippingAndHandlingCents: 0
-        },
-    ],
-    contactName: "Test Org Officer",
-    contactEmail: `${newInputs.netID}@utdallas.edu`,
-    contactPhone: "(555) 555-5555",
-    orgName: "Testing Org"
-}
-
+import type { QualtricsOrderPayload, QualtricsOrderResult } from './types';
 
 const clickNext = async (page: Page) => {
     await page.getByRole('button', { name: 'Next' }).click();
@@ -211,26 +16,27 @@ const clickNext = async (page: Page) => {
 const QUALTRICS_ORDER_FORM_URL = 'https://utdallas.qualtrics.com/jfe/form/SV_ageFSxiqRIPXwfc';
 const ORDER_ITEM_LIMIT = 10;
 
-const completeForm = async ({ page }: { page: Page }) => {
-    const { requestDate, businessJustification } = resolveFinalConfig(testData);
+const completeForm = async ({ page, payload }: { page: Page, payload: QualtricsOrderPayload }) => {
+    const { orderData, formInputs } = payload;
+    const { requestDate, businessJustification } = resolveFinalConfig(orderData as GenerateOrderFormsInput);
     await page.goto(QUALTRICS_ORDER_FORM_URL);
 
-    await page.getByRole('textbox', { name: 'Name of Jonsson School' }).fill(testData.orgName);
+    await page.getByRole('textbox', { name: 'Name of Jonsson School' }).fill(orderData.orgName);
     await clickNext(page);
 
-    await page.getByRole('textbox', { name: 'Student First Name' }).fill(testData.contactName);
-    await page.getByRole('textbox', { name: 'Student Last Name' }).fill(testData.contactName);
-    await page.getByRole('textbox', { name: 'Student NetID' }).fill(newInputs.netID);
-    await page.getByRole('textbox', { name: 'Student Email' }).fill(testData.contactEmail);
-    await page.getByRole('textbox', { name: 'Name of Faculty Advisor' }).fill(newInputs.advisor.name);
-    await page.getByRole('textbox', { name: 'Email of Faculty Advisor (UTD' }).fill(newInputs.advisor.email);
-    await page.getByRole('textbox', { name: 'Event Name (If not an event,' }).fill(newInputs.eventName);
-    await page.getByRole('textbox', { name: 'Date of Event (Format: MM/DD/' }).fill(newInputs.eventDate);
+    await page.getByRole('textbox', { name: 'Student First Name' }).fill(orderData.contactName);
+    await page.getByRole('textbox', { name: 'Student Last Name' }).fill(orderData.contactName);
+    await page.getByRole('textbox', { name: 'Student NetID' }).fill(formInputs.netID);
+    await page.getByRole('textbox', { name: 'Student Email' }).fill(orderData.contactEmail);
+    await page.getByRole('textbox', { name: 'Name of Faculty Advisor' }).fill(formInputs.advisor.name);
+    await page.getByRole('textbox', { name: 'Email of Faculty Advisor (UTD' }).fill(formInputs.advisor.email);
+    await page.getByRole('textbox', { name: 'Event Name (If not an event,' }).fill(formInputs.eventName);
+    await page.getByRole('textbox', { name: 'Date of Event (Format: MM/DD/' }).fill(formInputs.eventDate);
     await clickNext(page);
 
 
     // Items page
-    const itemsSortedByVendor = Object.values(groupItemsByVendor(testData.items)).flat();
+    const itemsSortedByVendor = Object.values(groupItemsByVendor(orderData.items)).flat();
     const truncatedItems = itemsSortedByVendor.slice(0, ORDER_ITEM_LIMIT);
     const remainingItems = itemsSortedByVendor.slice(ORDER_ITEM_LIMIT);
     for (let itemIndex = 0; itemIndex < truncatedItems.length; itemIndex++) {
@@ -253,15 +59,15 @@ const completeForm = async ({ page }: { page: Page }) => {
     if (remainingItems.length > 0) {
         const spreadsheet = await generateRemainingItemsExcel({
             items: remainingItems,
-            orgName: testData.orgName,
+            orgName: orderData.orgName,
         })
         await page.getByRole('button', { name: 'Drop files or click here to' }).setInputFiles(spreadsheet);
     }
     await clickNext(page);
 
-    await page.getByText(newInputs.costCenter.type).click();
-    if (newInputs.costCenter.type === 'Other') {
-        await page.getByTitle("Other").fill(newInputs.costCenter.value);
+    await page.getByText(formInputs.costCenter.type).click();
+    if (formInputs.costCenter.type === 'Other') {
+        await page.getByTitle("Other").fill(formInputs.costCenter.value);
     }
     await page.getByRole('textbox', { name: 'Please enter the justification' }).fill(businessJustification);
 
@@ -285,13 +91,43 @@ async function waitForBrowserDisconnection(browser: Browser) {
 }
 
 const main = async () => {
-    const { browser, context, page } = await launchBrowser();
-    await completeForm({ page });
+    const arg = process.argv[2];
+    if (!arg) {
+        const error: QualtricsOrderResult = { status: 'error', message: 'Missing input JSON argument' };
+        console.log(JSON.stringify(error));
+        process.exit(1);
+    }
+    let payload: QualtricsOrderPayload;
+    try {
+        payload = JSON.parse(arg);
+    } catch (e) {
+        const error: QualtricsOrderResult = { status: 'error', message: 'Invalid JSON input', details: e instanceof Error ? e.message : String(e) };
+        console.log(JSON.stringify(error));
+        process.exit(1);
+        return;
+    }
 
-    // Here we wait so that the user can manually fill in the signature and cost center page.
-    await waitForBrowserDisconnection(browser);
+    const { browser, page } = await launchBrowser();
+    try {
+        await completeForm({ page, payload });
+        await waitForBrowserDisconnection(browser);
+        const itemsSortedByVendor = Object.values(groupItemsByVendor(payload.orderData.items)).flat();
+        const truncated = itemsSortedByVendor.slice(0, ORDER_ITEM_LIMIT);
+        const remaining = itemsSortedByVendor.slice(ORDER_ITEM_LIMIT);
+        const result: QualtricsOrderResult = {
+            status: 'success',
+            vendorCount: Object.keys(groupItemsByVendor(payload.orderData.items)).length,
+            itemsCount: itemsSortedByVendor.length,
+            truncatedItemsCount: truncated.length,
+            remainingItemsUploaded: remaining.length > 0,
+        };
+        console.log(JSON.stringify(result));
+        process.exit(0);
+    } catch (e) {
+        const error: QualtricsOrderResult = { status: 'error', message: 'Failed to complete Qualtrics form', details: e instanceof Error ? e.message : String(e) };
+        console.log(JSON.stringify(error));
+        process.exit(1);
+    }
 }
 
-(async () => {
-    await main();
-})();
+void main();
