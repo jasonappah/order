@@ -7,9 +7,11 @@
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "sample": "yarn dlx tsx src/main.ts"
   },
   "devDependencies": {
+    "playwright": "^1.55.0",
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@turbo/gen": "^2.5.0",

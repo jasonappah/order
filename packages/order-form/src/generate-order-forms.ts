@@ -17,12 +17,21 @@ export type GenerateOrderFormsInput = {
 	requestDate?: Date;
 };
 
+export const resolveFinalConfig = (data: GenerateOrderFormsInput) => {
+	const requestDate = data.requestDate ?? new Date();
+	const businessJustification = data.justification ?? generalJustification;
+
+	return {
+		requestDate,
+		businessJustification,
+	}
+}
+
 export async function generateOrderForms(
 	data: GenerateOrderFormsInput,
 	purchaseFormPdfResolver: PurchaseFormPDFResolver
 ) {
-	const requestDate = data.requestDate ?? new Date();
-	const businessJustification = data.justification ?? generalJustification;
+	const { requestDate, businessJustification } = resolveFinalConfig(data);
 	const itemsGroupedByVendor = groupItemsByVendor(data.items);
 
 	const orderListPromises = Object.entries(itemsGroupedByVendor).map(
