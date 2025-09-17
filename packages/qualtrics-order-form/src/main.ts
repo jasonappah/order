@@ -3,6 +3,7 @@ import { resolveFinalConfig, type GenerateOrderFormsInput } from '../../order-fo
 import { calculateOrderLineItemTotal, formatCentsAsDollarString, groupItemsByVendor } from '../../order-form/src/utilities';
 import { generateRemainingItemsExcel } from './generate-excel';
 import type { QualtricsOrderPayload, QualtricsOrderResult } from './types';
+import { parseArgs } from "node:util";
 
 const clickNext = async (page: Page) => {
     await page.getByRole('button', { name: 'Next' }).click();
@@ -30,7 +31,7 @@ const completeForm = async ({ page, payload }: { page: Page, payload: QualtricsO
     await page.getByRole('textbox', { name: 'Student Email' }).fill(orderData.contactEmail);
     await page.getByRole('textbox', { name: 'Name of Faculty Advisor' }).fill(formInputs.advisor.name);
     await page.getByRole('textbox', { name: 'Email of Faculty Advisor (UTD' }).fill(formInputs.advisor.email);
-    await page.getByRole('textbox', { name: 'Event Name (If not an event,' }).fill(formInputs.eventName);
+    await page.getByRole('textbox', { name: 'Event Name (If not an event, please specify request)' }).fill(formInputs.eventName);
     await page.getByRole('textbox', { name: 'Date of Event (Format: MM/DD/' }).fill(formInputs.eventDate);
     await clickNext(page);
 
@@ -91,11 +92,23 @@ async function waitForBrowserDisconnection(browser: Browser) {
 }
 
 const main = async () => {
-    const arg = process.argv[2];
+    const { values, positionals } = parseArgs({
+        args: Bun.argv,
+        strict: true,
+        allowPositionals: true,
+        options: {
+            json: {
+                type: 'string'
+            },
+        },
+    });
+    console.error(values, positionals);
+    const arg = values.json;
     if (!arg) {
-        const error: QualtricsOrderResult = { status: 'error', message: 'Missing input JSON argument' };
+        const error: QualtricsOrderResult = { status: 'error', message: `Didn't provide a JSON payload` };
         console.log(JSON.stringify(error));
         process.exit(1);
+        return;
     }
     let payload: QualtricsOrderPayload;
     try {

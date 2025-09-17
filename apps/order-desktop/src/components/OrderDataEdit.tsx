@@ -147,7 +147,10 @@ export function OrderDataEdit({
   };
 
   const handleSubmitQualtrics = async () => {
+    console.log("Validation result:", validationResult);
+    console.log("Editable data:", editableData);
     if (!validationResult?.isValid || editableData.length === 0) {
+      console.error("Validation result is invalid or editable data is empty");
       return;
     }
     setIsSubmittingQualtrics(true);
@@ -271,7 +274,6 @@ export function OrderDataEdit({
           <Group grow mt="sm">
             <TextInput
               label="Event Name"
-              placeholder="Optional"
               value={qualtricsInputs.eventName}
               onChange={(e) => setQualtricsInputs({ ...qualtricsInputs, eventName: e.currentTarget.value })}
             />

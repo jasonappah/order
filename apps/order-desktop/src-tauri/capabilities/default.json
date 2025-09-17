@@ -16,8 +16,16 @@
     "store:default",
     "log:default",
     "shell:default",
-    "shell:allow-sidecar",
     "shell:allow-open",
-    "shell:allow-command"
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "../../../packages/qualtrics-order-form/dist/qualtrics-sidecar",
+          "sidecar": true,
+          "args": true
+        }
+      ]
+    }
   ]
 }
