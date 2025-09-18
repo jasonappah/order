@@ -10,16 +10,25 @@ import {
 } from "../../order-form/src/utilities";
 import { generateRemainingItemsExcel } from "./generate-excel";
 import type { QualtricsOrderPayload } from "./types";
-import { QUALTRICS_ORDER_FORM_URL, ORDER_ITEM_LIMIT } from "./constants";
+import { QUALTRICS_ORDER_FORM_URL, ORDER_ITEM_LIMIT, AUTO_ADVANCE_FORM } from "./constants"
 
 const clickNext = async (page: Page) => {
+	if (!AUTO_ADVANCE_FORM) {
+		console.error("Auto advancing form is disabled, not clicking next");
+		return;
+	}
+
+	console.error("Clicking next");
 	await page.getByRole("button", { name: "Next" }).click();
 
 	const continueWithoutAnsweringButton = page.getByRole("button", {
 		name: "Continue Without Answering",
 	});
 	if ((await continueWithoutAnsweringButton.count()) > 0) {
+		console.error("Clicking continue without answering");
 		await continueWithoutAnsweringButton.click();
+	} else {
+		console.error("No continue without answering button found, continuing");
 	}
 };
 
