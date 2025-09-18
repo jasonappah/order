@@ -1,6 +1,7 @@
 import { parseArgs } from "node:util";
-import { completeForm } from "./main";
-import { QualtricsOrderPayload, QualtricsOrderResult } from "./types";
+import { completeForm, launchBrowser } from "./main";
+import type { QualtricsOrderPayload, QualtricsOrderResult } from "./types";
+import { buildVars } from "./build-vars-macro" with { type: "macro" };
 
 function yieldResult(result: QualtricsOrderResult): never {
 	console.error("Yielding result", result);
@@ -9,7 +10,8 @@ function yieldResult(result: QualtricsOrderResult): never {
 }
 
 const main = async () => {
-	console.error("Starting sidecar");
+    const vars = buildVars();
+	console.error("Starting sidecar. Built at", vars.buildTime);
 
 	const args = parseArgs({
 		args: Bun.argv,
