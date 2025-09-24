@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "org.cometrobotics.order",
   "build": {
-    "frontendDist": "../build",
+    "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "yarn workspace @repo/qualtrics-order-form build:sidecar && yarn vite --port 5173",
     "beforeBuildCommand": "yarn workspace @repo/qualtrics-order-form build:sidecar && yarn vite build"
