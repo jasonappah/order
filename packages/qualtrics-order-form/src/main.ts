@@ -144,7 +144,6 @@ export const completeForm = async ({
 export const launchBrowser = async () => {
 	const browser = await chromium.launch({
 		headless: false,
-        slowMo: 1000,
         timeout: 60000 * 1,
 
 	});

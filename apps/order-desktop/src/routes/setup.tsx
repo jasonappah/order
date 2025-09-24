@@ -32,18 +32,24 @@ function SetupPage() {
   
   const form = useForm({
     defaultValues: {
-      userName: userData?.name || '',
+      userFirstName: userData?.firstName || '',
+      userLastName: userData?.lastName || '',
+      userNetId: userData?.netId || '',
       userEmail: userData?.email || '',
       userPhone: userData?.phone || '',
       clubType: (clubData?.type || 'comet-robotics') as 'comet-robotics' | 'other',
       clubName: (clubData && clubData?.type === 'other') ? clubData.name : '',
+      advisorName: clubData?.advisor?.name || '',
+      advisorEmail: clubData?.advisor?.email || '',
     },
     onSubmit: async ({ value }) => {
       setIsSubmitting(true)
       try {
         // Save user data
         await setUserData({
-          name: value.userName,
+          firstName: value.userFirstName,
+          lastName: value.userLastName,
+          netId: value.userNetId,
           email: value.userEmail,
           phone: value.userPhone,
         })
@@ -51,12 +57,20 @@ function SetupPage() {
         // Save club data
         if (value.clubType === 'comet-robotics') {
           await setClubData({
-            type: 'comet-robotics'
+            type: 'comet-robotics',
+            advisor: {
+              name: value.advisorName,
+              email: value.advisorEmail,
+            }
           })
         } else {
           await setClubData({
             type: 'other',
-            name: value.clubName
+            name: value.clubName,
+            advisor: {
+              name: value.advisorName,
+              email: value.advisorEmail,
+            }
           })
         }
         
@@ -112,18 +126,60 @@ function SetupPage() {
           <Stack gap="lg">
             <div>
               <Title order={3} className="mb-4">Personal Information</Title>
-              
+
               <form.Field
-                name="userName"
+                name="userFirstName"
                 validators={{
                   onChange: ({ value }) => 
-                    !value ? 'Name is required' : undefined,
+                    !value ? 'First name is required' : undefined,
                 }}
               >
                 {(field) => (
                   <TextInput
-                    label="Full Name"
-                    placeholder="Enter your full name"
+                    label="First Name"
+                    placeholder="Enter your first name"
+                    required
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    error={field.state.meta.isTouched && field.state.meta.errors}
+                    className="mb-4"
+                  />
+                )}
+              </form.Field>
+
+              <form.Field
+                name="userLastName"
+                validators={{
+                  onChange: ({ value }) => 
+                    !value ? 'Last name is required' : undefined,
+                }}
+              >
+                {(field) => (
+                  <TextInput
+                    label="Last Name"
+                    placeholder="Enter your last name"
+                    required
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    error={field.state.meta.isTouched && field.state.meta.errors}
+                    className="mb-4"
+                  />
+                )}
+              </form.Field>
+
+              <form.Field
+                name="userNetId"
+                validators={{
+                  onChange: ({ value }) => 
+                    !value ? 'NetID is required' : undefined,
+                }}
+              >
+                {(field) => (
+                  <TextInput
+                    label="UTD NetID"
+                    placeholder="abc123456"
                     required
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -238,6 +294,52 @@ function SetupPage() {
                     return null
                   }}
               </form.Subscribe>
+
+              <form.Field
+                name="advisorName"
+                validators={{
+                  onChange: ({ value }) => 
+                    !value ? 'Advisor name is required' : undefined,
+                }}
+              >
+                {(field) => (
+                  <TextInput
+                    label="Advisor Name"
+                    placeholder="Dr. Example"
+                    required
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    error={field.state.meta.isTouched && field.state.meta.errors}
+                    className="mt-4"
+                  />
+                )}
+              </form.Field>
+
+              <form.Field
+                name="advisorEmail"
+                validators={{
+                  onChange: ({ value }) => {
+                    if (!value) return 'Advisor email is required'
+                    if (!/^[^\s@]+@utdallas\.edu$/.test(value)) {
+                      return 'Use a valid UTD email (e.g., name@utdallas.edu)'
+                    }
+                    return undefined
+                  },
+                }}
+              >
+                {(field) => (
+                  <TextInput
+                    label="Advisor Email (UTD)"
+                    placeholder="advisor@utdallas.edu"
+                    required
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    error={field.state.meta.isTouched && field.state.meta.errors}
+                  />
+                )}
+              </form.Field>
               
               
               

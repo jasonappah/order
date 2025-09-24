@@ -30,6 +30,9 @@ import type { StateKeys, States } from "@/lib/tauri-store/appState";
 import type { ParseResult } from "../lib/clipboardParser";
 import { submitQualtricsOrder } from "../lib/qualtrics";
 import type { QualtricsFormInputs } from "../../../../packages/qualtrics-order-form/src/types";
+import type { ParsedRow } from "../lib/clipboardParser";
+
+type EditableRow = ParsedRow & { _id: string };
 
 const purchaseFormPdfResolverOnTauriApp: PurchaseFormPDFResolver = async () => {
   const purchaseFormPdfBytes = await readFile(
@@ -57,7 +60,7 @@ export function OrderDataEdit({
   onClear,
   className,
 }: OrderDataEditProps) {
-  const [editableData, setEditableData] = useState<any[]>([]);
+  const [editableData, setEditableData] = useState<EditableRow[]>([]);
   const [validationResult, setValidationResult] = useState<ValidationResult>(
     initialValidationResult,
   );
@@ -72,22 +75,30 @@ export function OrderDataEdit({
   const [qualtricsError, setQualtricsError] = useState<string | null>(null);
 
   const [qualtricsInputs, setQualtricsInputs] = useState<QualtricsFormInputs>({
-    netID: user.email.split("@")[0] || "",
-    advisor: { name: "", email: "" },
+    netID: user.netId || "",
+    advisor: { name: club.advisor.name || "", email: club.advisor.email || "" },
     eventName: "",
     eventDate: "",
     costCenter: { type: "Student Organization Cost Center" },
   });
 
+  useEffect(() => {
+    setQualtricsInputs((prev) => ({
+      ...prev,
+      netID: user.netId || "",
+      advisor: { name: club.advisor.name || "", email: club.advisor.email || "" },
+    }))
+  }, [user.netId, club.advisor.name, club.advisor.email])
+
   // Initialize editable data when parseResult changes
   useEffect(() => {
     setEditableData(
-      parseResult.rows.map((row, index) => ({ ...row, _id: index })),
+      parseResult.rows.map((row, rowIndex) => ({ ...row, _id: String(rowIndex) })),
     );
     setValidationResult(initialValidationResult);
   }, [parseResult, initialValidationResult]);
 
-  const handleCellEdit = (rowId: number, fieldName: string, value: string) => {
+  const handleCellEdit = (rowId: string, fieldName: string, value: string) => {
     const updatedData = editableData.map((row) =>
       row._id === rowId ? { ...row, [fieldName]: value } : row,
     );
@@ -113,7 +124,7 @@ export function OrderDataEdit({
       const result = await generateOrderForms(
         {
           items: orderItems,
-          contactName: user.name,
+          contactName: `${user.firstName} ${user.lastName}`,
           contactEmail: user.email,
           contactPhone: user.phone,
           orgName:
@@ -161,7 +172,7 @@ export function OrderDataEdit({
       const result = await submitQualtricsOrder(
         {
           items: orderItems,
-          contactName: user.name,
+          contactName: `${user.firstName} ${user.lastName}`,
           contactEmail: user.email,
           contactPhone: user.phone,
           orgName: club.type === "comet-robotics" ? "Comet Robotics" : club.name,
@@ -248,29 +259,6 @@ export function OrderDataEdit({
 
         <Paper p="sm" mt="md" withBorder>
           <Text size="sm" fw={600} mb="xs">Qualtrics Submission Details</Text>
-          <Group grow>
-            <TextInput
-              label="Student NetID"
-              placeholder="abc123456"
-              value={qualtricsInputs.netID}
-              onChange={(e) => setQualtricsInputs({ ...qualtricsInputs, netID: e.currentTarget.value })}
-              required
-            />
-            <TextInput
-              label="Advisor Name"
-              placeholder="Dr. Example"
-              value={qualtricsInputs.advisor.name}
-              onChange={(e) => setQualtricsInputs({ ...qualtricsInputs, advisor: { ...qualtricsInputs.advisor, name: e.currentTarget.value } })}
-              required
-            />
-            <TextInput
-              label="Advisor Email (UTD)"
-              placeholder="advisor@utdallas.edu"
-              value={qualtricsInputs.advisor.email}
-              onChange={(e) => setQualtricsInputs({ ...qualtricsInputs, advisor: { ...qualtricsInputs.advisor, email: e.currentTarget.value } })}
-              required
-            />
-          </Group>
           <Group grow mt="sm">
             <TextInput
               label="Event Name"
@@ -290,8 +278,11 @@ export function OrderDataEdit({
                 if (!value) return;
                 if (value === 'Other') {
                   setQualtricsInputs({ ...qualtricsInputs, costCenter: { type: 'Other', value: '' } });
-                } else {
-                  setQualtricsInputs({ ...qualtricsInputs, costCenter: { type: value as any } });
+                } else if (
+                  value === 'Student Organization Cost Center' ||
+                  value === 'Jonsson School Student Council funding'
+                ) {
+                  setQualtricsInputs({ ...qualtricsInputs, costCenter: { type: value } });
                 }
               }}
               data={[
@@ -316,10 +307,10 @@ export function OrderDataEdit({
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                {parseResult.headers.map((header, index) => (
-                  <Table.Th key={index} style={{ minWidth: "120px" }}>
+                {parseResult.headers.map((header, colIndex) => (
+                  <Table.Th key={header} style={{ minWidth: "120px" }}>
                     {header}
-                    {REQUIRED_FIELDS[index]?.required && (
+                    {REQUIRED_FIELDS[colIndex]?.required && (
                       <Text component="span" c="red" size="xs">
                         {" "}
                         *
@@ -457,8 +448,8 @@ export function OrderDataEdit({
               ✅ Successfully generated {generatedPDFs.length} PDF
               {generatedPDFs.length !== 1 ? "s" : ""}
             </Text>
-            {generatedPDFs.map((pdf, index) => (
-              <Text key={index} size="xs">
+            {generatedPDFs.map((pdf) => (
+              <Text key={pdf.filename} size="xs">
                 • {pdf.vendor}: {pdf.itemCount} item
                 {pdf.itemCount !== 1 ? "s" : ""} ({pdf.filename})
               </Text>
@@ -471,8 +462,8 @@ export function OrderDataEdit({
             <Text size="sm" fw={600}>
               ❌ PDF Generation Errors:
             </Text>
-            {pdfGenerationErrors.map((error, index) => (
-              <Text key={index} size="xs">
+            {pdfGenerationErrors.map((error) => (
+              <Text key={error} size="xs">
                 • {error}
               </Text>
             ))}
