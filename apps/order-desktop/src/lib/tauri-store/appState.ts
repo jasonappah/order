@@ -60,7 +60,7 @@ export const seedData: States = {
     type: 'comet-robotics',
     advisor: {
       name: 'John Doe',
-      email: 'john.doe@example.com',
+      email: 'john.doe@utdallas.edu',
     }
   },
   [StateKeys.user]: {
