@@ -8,7 +8,8 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "dev": "bun run --watch src/dev.ts",
+    "dev:sidecar": "bun run scripts/run-sidecar-dev.ts",
+    "dev:excel": "bun run scripts/generate-excel-dev.ts",
     "build:sidecar": "bun run scripts/build-sidecar.ts"
   },
   "devDependencies": {
