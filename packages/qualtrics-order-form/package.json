@@ -13,6 +13,7 @@
     "build:sidecar": "bun run scripts/build-sidecar.ts"
   },
   "devDependencies": {
+    "@playwright/browser-chromium": "^1.55.1",
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@turbo/gen": "^2.5.0",

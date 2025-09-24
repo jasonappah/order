@@ -1048,6 +1048,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@playwright/browser-chromium@npm:^1.55.1":
+  version: 1.55.1
+  resolution: "@playwright/browser-chromium@npm:1.55.1"
+  dependencies:
+    playwright-core: "npm:1.55.1"
+  checksum: 10c0/58c4c870b3e2869ab3b87b057a6355e6913e3d53a5c75f856fe920283fcd17fc5b6a24c687fe4356dc678cbdd6d6fe8bba2452becf4d31bda5a600386c8c1523
+  languageName: node
+  linkType: hard
+
 "@react-pdf/fns@npm:3.1.2":
   version: 3.1.2
   resolution: "@react-pdf/fns@npm:3.1.2"
@@ -1257,6 +1266,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@repo/qualtrics-order-form@workspace:packages/qualtrics-order-form"
   dependencies:
+    "@playwright/browser-chromium": "npm:^1.55.1"
     "@repo/eslint-config": "npm:*"
     "@repo/typescript-config": "npm:*"
     "@turbo/gen": "npm:^2.5.0"
