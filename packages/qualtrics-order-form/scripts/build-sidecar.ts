@@ -5,7 +5,7 @@ const platforms: { target: Bun.Build.Target, outfile: string }[] = [
 
   for (const platform of platforms) {
     await Bun.build({
-      entrypoints: ["./src/sidecar.ts"],
+      entrypoints: ["./src/cli.ts"],
       outdir: "./dist",
       compile: platform,
       target: 'bun',
