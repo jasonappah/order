@@ -33,12 +33,10 @@ const clickNext = async (page: Page) => {
 };
 
 const waitForFormCompletion = async (page: Page) => {
-	// TODO: resolve this function when the form is completed
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve(true);
-		}, 60000 * 1);
-	});
+	// Wait for a confirmation message or page change indicating form completion.
+	// Update the selector/text below to match the actual confirmation on your form.
+	await page.waitForSelector('text=Thank you', { timeout: 60000 });
+	return true;
 }
 
 export const completeForm = async ({
