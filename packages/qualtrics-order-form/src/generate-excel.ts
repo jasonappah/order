@@ -1,15 +1,15 @@
 import * as XLSX from 'xlsx'
 import type { OrderLineItem } from '../../order-form/src/types'
-import { calculateOrderLineItemTotal } from '../../order-form/src/utilities'
+import { calculateOrderLineItemTotal, formatCentsAsDollarString } from '../../order-form/src/utilities'
 
 export type ExcelRow = {
 	Name: string
 	Vendor: string
 	Quantity: number
 	URL: string
-	PricePerUnitCents: number
-	ShippingAndHandlingCents: number
-	TotalPriceCents: number
+	PricePerUnit: string
+	ShippingAndHandling: string
+	TotalPrice: string
 	Notes?: string
 }
 
@@ -19,9 +19,9 @@ const mapItemsToRows = (items: OrderLineItem[]): ExcelRow[] => {
 		Vendor: item.vendor,
 		Quantity: item.quantity,
 		URL: item.url,
-		PricePerUnitCents: item.pricePerUnitCents,
-		ShippingAndHandlingCents: item.shippingAndHandlingCents,
-		TotalPriceCents: calculateOrderLineItemTotal(item),
+		PricePerUnit: formatCentsAsDollarString(item.pricePerUnitCents),
+		ShippingAndHandling: formatCentsAsDollarString(item.shippingAndHandlingCents),
+		TotalPrice: formatCentsAsDollarString(calculateOrderLineItemTotal(item)),
 		Notes: item.notes,
 	}))
 }
