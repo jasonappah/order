@@ -6,7 +6,7 @@
   "build": {
     "frontendDist": "../build",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "yarn vite --port 5173",
+    "beforeDevCommand": "yarn workspace @repo/qualtrics-order-form build:sidecar && yarn vite --port 5173",
     "beforeBuildCommand": "yarn workspace @repo/qualtrics-order-form build:sidecar && yarn vite build"
   },
   "app": {
