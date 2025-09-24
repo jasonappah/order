@@ -124,7 +124,7 @@ export const completeForm = async ({
 			orgName: orderData.orgName,
 		});
 		await page
-			.getByRole("button", { name: "Drop files or click here to" })
+			.locator("input[type='file']")
 			.setInputFiles(spreadsheet);
 	}
 	await clickNext(page);
