@@ -106,7 +106,7 @@ export const completeForm = async ({
 			.fill(item.url);
 		await page
 			.getByRole("textbox", { name: `Item ${displayIndex} Price of item` })
-			.fill(item.pricePerUnitCents.toString());
+			.fill(formatCentsAsDollarString(item.pricePerUnitCents));
 		await page
 			.getByRole("textbox", { name: `Item ${displayIndex} Quantity` })
 			.fill(item.quantity.toString());
