@@ -172,7 +172,8 @@ export function OrderDataEdit({
       const result = await submitQualtricsOrder(
         {
           items: orderItems,
-          contactName: `${user.firstName} ${user.lastName}`,
+          contactFirstName: user.firstName,
+          contactLastName: user.lastName,
           contactEmail: user.email,
           contactPhone: user.phone,
           orgName: club.type === "comet-robotics" ? "Comet Robotics" : club.name,
