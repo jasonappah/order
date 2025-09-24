@@ -9,7 +9,8 @@ const generalJustification = 'These parts are needed for continued research and 
 export type GenerateOrderFormsInput = {
 	items: OrderLineItem[];
 	justification?: string;
-	contactName: string;
+	contactFirstName: string;
+	contactLastName: string;
 	contactEmail: string;
 	contactPhone: string;
 	project?: string
@@ -44,7 +45,7 @@ export async function generateOrderForms(
 				}),
 				purchaseFormPdf: await generatePurchaseFormPDF({
 					orgName: data.orgName,
-					contactName: data.contactName,
+					contactName: `${data.contactFirstName} ${data.contactLastName}`,
 					contactEmail: data.contactEmail,
 					contactPhone: data.contactPhone,
 					businessJustification,

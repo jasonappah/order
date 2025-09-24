@@ -31,7 +31,8 @@ export type QualtricsOrderPayload = {
       notes?: string;
     }>;
     justification?: string;
-    contactName: string;
+    contactFirstName: string;
+    contactLastName: string;
     contactEmail: string;
     contactPhone: string;
     project?: string;

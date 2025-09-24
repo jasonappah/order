@@ -56,10 +56,10 @@ export const completeForm = async ({
 
 	await page
 		.getByRole("textbox", { name: "Student First Name" })
-		.fill(orderData.contactName);
+		.fill(orderData.contactFirstName);
 	await page
 		.getByRole("textbox", { name: "Student Last Name" })
-		.fill(orderData.contactName);
+		.fill(orderData.contactLastName);
 	await page
 		.getByRole("textbox", { name: "Student NetID" })
 		.fill(formInputs.netID);
