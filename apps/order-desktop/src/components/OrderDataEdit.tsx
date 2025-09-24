@@ -28,6 +28,11 @@ import { resolveResource } from "@tauri-apps/api/path";
 import type { PurchaseFormPDFResolver } from "../../../../packages/order-form/src/generate-purchase-form-pdf";
 import type { StateKeys, States } from "@/lib/tauri-store/appState";
 import type { ParseResult } from "../lib/clipboardParser";
+import { submitQualtricsOrder } from "../lib/qualtrics";
+import type { QualtricsFormInputs } from "../../../../packages/qualtrics-order-form/src/types";
+import type { ParsedRow } from "../lib/clipboardParser";
+
+type EditableRow = ParsedRow & { _id: string };
 
 const purchaseFormPdfResolverOnTauriApp: PurchaseFormPDFResolver = async () => {
   const purchaseFormPdfBytes = await readFile(
@@ -55,7 +60,7 @@ export function OrderDataEdit({
   onClear,
   className,
 }: OrderDataEditProps) {
-  const [editableData, setEditableData] = useState<any[]>([]);
+  const [editableData, setEditableData] = useState<EditableRow[]>([]);
   const [validationResult, setValidationResult] = useState<ValidationResult>(
     initialValidationResult,
   );
@@ -65,16 +70,35 @@ export function OrderDataEdit({
   const [selectedProject, setSelectedProject] =
     useState<CometProject>("General");
   const [justificationText, setJustificationText] = useState<string>("");
+  const [isSubmittingQualtrics, setIsSubmittingQualtrics] = useState(false);
+  const [qualtricsResult, setQualtricsResult] = useState<null | { status: string; message?: string }>(null);
+  const [qualtricsError, setQualtricsError] = useState<string | null>(null);
+
+  const [qualtricsInputs, setQualtricsInputs] = useState<QualtricsFormInputs>({
+    netID: user.netId || "",
+    advisor: { name: club.advisor.name || "", email: club.advisor.email || "" },
+    eventName: "",
+    eventDate: "",
+    costCenter: { type: "Student Organization Cost Center" },
+  });
+
+  useEffect(() => {
+    setQualtricsInputs((prev) => ({
+      ...prev,
+      netID: user.netId || "",
+      advisor: { name: club.advisor.name || "", email: club.advisor.email || "" },
+    }))
+  }, [user.netId, club.advisor.name, club.advisor.email])
 
   // Initialize editable data when parseResult changes
   useEffect(() => {
     setEditableData(
-      parseResult.rows.map((row, index) => ({ ...row, _id: index })),
+      parseResult.rows.map((row, rowIndex) => ({ ...row, _id: String(rowIndex) })),
     );
     setValidationResult(initialValidationResult);
   }, [parseResult, initialValidationResult]);
 
-  const handleCellEdit = (rowId: number, fieldName: string, value: string) => {
+  const handleCellEdit = (rowId: string, fieldName: string, value: string) => {
     const updatedData = editableData.map((row) =>
       row._id === rowId ? { ...row, [fieldName]: value } : row,
     );
@@ -100,7 +124,7 @@ export function OrderDataEdit({
       const result = await generateOrderForms(
         {
           items: orderItems,
-          contactName: user.name,
+          contactName: `${user.firstName} ${user.lastName}`,
           contactEmail: user.email,
           contactPhone: user.phone,
           orgName:
@@ -130,6 +154,47 @@ export function OrderDataEdit({
       ]);
     } finally {
       setIsGeneratingPDFs(false);
+    }
+  };
+
+  const handleSubmitQualtrics = async () => {
+    console.log("Validation result:", validationResult);
+    console.log("Editable data:", editableData);
+    if (!validationResult?.isValid || editableData.length === 0) {
+      console.error("Validation result is invalid or editable data is empty");
+      return;
+    }
+    setIsSubmittingQualtrics(true);
+    setQualtricsResult(null);
+    setQualtricsError(null);
+    try {
+      const orderItems = transformToOrderLineItems(editableData);
+      const result = await submitQualtricsOrder(
+        {
+          items: orderItems,
+          contactFirstName: user.firstName,
+          contactLastName: user.lastName,
+          contactEmail: user.email,
+          contactPhone: user.phone,
+          orgName: club.type === "comet-robotics" ? "Comet Robotics" : club.name,
+          justification:
+            club.type === "comet-robotics"
+              ? generateCRUTDJustification({
+                  project: selectedProject,
+                  justification: { append: justificationText },
+                })
+              : justificationText || undefined,
+        },
+        qualtricsInputs
+      );
+      setQualtricsResult(result);
+      if (result.status === "error") {
+        setQualtricsError(result.message ?? "Unknown error");
+      }
+    } catch (e) {
+      setQualtricsError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setIsSubmittingQualtrics(false);
     }
   };
 
@@ -192,14 +257,61 @@ export function OrderDataEdit({
           mb="md"
           minRows={3}
         />
+
+        <Paper p="sm" mt="md" withBorder>
+          <Text size="sm" fw={600} mb="xs">Qualtrics Submission Details</Text>
+          <Group grow mt="sm">
+            <TextInput
+              label="Event Name"
+              value={qualtricsInputs.eventName}
+              onChange={(e) => setQualtricsInputs({ ...qualtricsInputs, eventName: e.currentTarget.value })}
+            />
+            <TextInput
+              label="Event Date (MM/DD/YYYY)"
+              placeholder="MM/DD/YYYY"
+              value={qualtricsInputs.eventDate}
+              onChange={(e) => setQualtricsInputs({ ...qualtricsInputs, eventDate: e.currentTarget.value })}
+            />
+            <Select
+              label="Cost Center Type"
+              value={qualtricsInputs.costCenter.type}
+              onChange={(value) => {
+                if (!value) return;
+                if (value === 'Other') {
+                  setQualtricsInputs({ ...qualtricsInputs, costCenter: { type: 'Other', value: '' } });
+                } else if (
+                  value === 'Student Organization Cost Center' ||
+                  value === 'Jonsson School Student Council funding'
+                ) {
+                  setQualtricsInputs({ ...qualtricsInputs, costCenter: { type: value } });
+                }
+              }}
+              data={[
+                { value: 'Student Organization Cost Center', label: 'Student Organization Cost Center' },
+                { value: 'Jonsson School Student Council funding', label: 'Jonsson School Student Council funding' },
+                { value: 'Other', label: 'Other' },
+              ]}
+            />
+          </Group>
+          {qualtricsInputs.costCenter.type === 'Other' && (
+            <TextInput
+              mt="sm"
+              label="Cost Center (Other)"
+              placeholder="Enter cost center"
+              value={qualtricsInputs.costCenter.value || ''}
+              onChange={(e) => setQualtricsInputs({ ...qualtricsInputs, costCenter: { type: 'Other', value: e.currentTarget.value } })}
+              required
+            />
+          )}
+        </Paper>
         <ScrollArea>
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                {parseResult.headers.map((header, index) => (
-                  <Table.Th key={index} style={{ minWidth: "120px" }}>
+                {parseResult.headers.map((header, colIndex) => (
+                  <Table.Th key={header} style={{ minWidth: "120px" }}>
                     {header}
-                    {REQUIRED_FIELDS[index]?.required && (
+                    {REQUIRED_FIELDS[colIndex]?.required && (
                       <Text component="span" c="red" size="xs">
                         {" "}
                         *
@@ -320,6 +432,15 @@ export function OrderDataEdit({
               ? "Generating PDFs..."
               : "Generate & Download PDFs"}
           </Button>
+          <Button
+            variant="outline"
+            disabled={!validationResult?.isValid || isSubmittingQualtrics}
+            size="sm"
+            onClick={handleSubmitQualtrics}
+            leftSection={isSubmittingQualtrics ? <Loader size="xs" /> : undefined}
+          >
+            {isSubmittingQualtrics ? "Submitting to Qualtrics..." : "Submit to Qualtrics"}
+          </Button>
         </Group>
 
         {generatedPDFs.length > 0 && (
@@ -328,8 +449,8 @@ export function OrderDataEdit({
               ✅ Successfully generated {generatedPDFs.length} PDF
               {generatedPDFs.length !== 1 ? "s" : ""}
             </Text>
-            {generatedPDFs.map((pdf, index) => (
-              <Text key={index} size="xs">
+            {generatedPDFs.map((pdf) => (
+              <Text key={pdf.filename} size="xs">
                 • {pdf.vendor}: {pdf.itemCount} item
                 {pdf.itemCount !== 1 ? "s" : ""} ({pdf.filename})
               </Text>
@@ -342,11 +463,24 @@ export function OrderDataEdit({
             <Text size="sm" fw={600}>
               ❌ PDF Generation Errors:
             </Text>
-            {pdfGenerationErrors.map((error, index) => (
-              <Text key={index} size="xs">
+            {pdfGenerationErrors.map((error) => (
+              <Text key={error} size="xs">
                 • {error}
               </Text>
             ))}
+          </Alert>
+        )}
+
+        {qualtricsResult && (
+          <Alert variant="light" color={qualtricsResult.status === "success" ? "green" : "red"} mt="md">
+            <Text size="sm" fw={600}>
+              {qualtricsResult.status === "success"
+                ? "✅ Qualtrics submission prepared successfully"
+                : "❌ Qualtrics submission failed"}
+            </Text>
+            {qualtricsError && (
+              <Text size="xs">• {qualtricsError}</Text>
+            )}
           </Alert>
         )}
       </Fragment>

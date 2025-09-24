@@ -5,7 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", "src-tauri/target/**"]
+      "outputs": ["dist/**", "src-tauri/target/**", "packages/qualtrics-order-form/dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
