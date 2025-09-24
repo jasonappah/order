@@ -14,6 +14,18 @@
     "fs:allow-create",
     "fs:allow-write-file",
     "store:default",
-    "log:default"
+    "log:default",
+    "shell:default",
+    "shell:allow-open",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "../../../packages/qualtrics-order-form/dist/qualtrics-sidecar",
+          "sidecar": true,
+          "args": true
+        }
+      ]
+    }
   ]
 }

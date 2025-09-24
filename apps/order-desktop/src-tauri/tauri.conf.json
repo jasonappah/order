@@ -7,7 +7,7 @@
     "frontendDist": "../build",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "yarn vite --port 5173",
-    "beforeBuildCommand": "yarn vite build"
+    "beforeBuildCommand": "yarn workspace @repo/qualtrics-order-form build:sidecar && yarn vite build"
   },
   "app": {
     "windows": [
@@ -35,6 +35,9 @@
     ],
     "resources": {
       "../../../resources/**/*": "resources/"
-    }
+    },
+    "externalBin": [
+      "../../../packages/qualtrics-order-form/dist/qualtrics-sidecar"
+    ]
   }
 }

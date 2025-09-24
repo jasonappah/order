@@ -8,15 +8,20 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "sample": "yarn dlx tsx src/main.ts"
+    "dev:sidecar": "bun run scripts/run-sidecar-dev.ts",
+    "dev:excel": "bun run scripts/generate-excel-dev.ts",
+    "build:sidecar": "bun run scripts/build-sidecar.ts"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@turbo/gen": "^2.5.0",
+    "@types/bun": "^1.2.22",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
+    "chromium-bidi": "^9.0.0",
+    "electron": "^38.1.2",
     "eslint": "^9.26.0",
     "playwright": "^1.55.0",
     "typescript": "5.8.2"
