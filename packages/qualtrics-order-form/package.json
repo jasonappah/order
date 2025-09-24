@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "sample": "yarn dlx tsx src/main.ts",
+    "dev": "bun run --watch src/dev.ts",
     "build:sidecar": "bun run scripts/build-sidecar.ts"
   },
   "devDependencies": {
