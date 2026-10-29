@@ -1,6 +1,6 @@
 # order
 
-order is a tool to help with generating ecs order forms for comet robotics projects. currently work in progress
+order is a tool to help with generating ecs order forms for comet robotics projects. project archived since I no longer handle procurement for any orgs
 
 ## usage
 
